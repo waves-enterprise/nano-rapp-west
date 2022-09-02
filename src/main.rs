@@ -12,6 +12,12 @@ use nanos_sdk::io;
 use nanos_sdk::io::SyscallError;
 use nanos_ui::ui;
 
+mod transaction;
+use transaction::Transaction;
+
+mod tx_scroller;
+use tx_scroller::TxScroller;
+
 nanos_sdk::set_panic!(nanos_sdk::exiting_panic);
 
 /// Display public key in two separate
@@ -60,13 +66,19 @@ fn menu_example() {
 /// to read the incoming message, a panel that requests user
 /// validation, and an exit message.
 fn sign_ui(message: &[u8]) -> Result<Option<DerEncodedEcdsaSignature>, SyscallError> {
-    ui::popup("Message review");
-
     {
-        let hex = utils::to_hex(message).map_err(|_| SyscallError::Overflow)?;
-        let m = from_utf8(&hex).map_err(|_| SyscallError::InvalidParameter)?;
+        match Transaction::from_bytes(message) {
+            Ok(tx) => {
+                let (titles, messages) = utils::create_messages(tx);
+                TxScroller::new(&titles[..], &messages[..]).event_loop();
+            }
+            Err(_err) => {
+                let hex = utils::to_hex(message).map_err(|_| SyscallError::Overflow)?;
+                let m = from_utf8(&hex).map_err(|_| SyscallError::InvalidParameter)?;
 
-        ui::MessageScroller::new(m).event_loop();
+                ui::MessageScroller::new(m).event_loop();
+            }
+        };
     }
 
     if ui::Validator::new("Sign ?").ask() {
