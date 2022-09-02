@@ -69,7 +69,12 @@ fn sign_ui(message: &[u8]) -> Result<Option<DerEncodedEcdsaSignature>, SyscallEr
     {
         match Transaction::from_bytes(message) {
             Ok(tx) => {
-                let (titles, messages) = utils::create_messages(tx);
+                // This buffer is for converting numbers into strings
+                // and should live all the time until
+                // everything is displayed on the screen
+                let mut buf = [0u8; 20];
+
+                let (titles, messages) = utils::create_messages(tx, &mut buf);
                 TxScroller::new(&titles[..], &messages[..]).event_loop();
             }
             Err(_err) => {
