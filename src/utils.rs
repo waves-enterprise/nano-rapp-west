@@ -10,7 +10,7 @@ const MAX_SIZE: usize = 10;
 pub fn create_messages<'a>(
     tx: Transaction,
     buf: &'a mut [u8],
-) -> ([&'a str; MAX_SIZE], [&'a str; MAX_SIZE]) {
+) -> ([&'a str; MAX_SIZE], [&'a str; MAX_SIZE], usize) {
     let mut titles = [""; MAX_SIZE];
     let mut messages = [""; MAX_SIZE];
 
@@ -60,7 +60,7 @@ pub fn create_messages<'a>(
         _ => (),
     }
 
-    (titles, messages)
+    (titles, messages, cursor)
 }
 
 /// Convert to hex. Returns a static buffer of 64 bytes

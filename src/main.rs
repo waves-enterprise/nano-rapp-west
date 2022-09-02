@@ -74,8 +74,8 @@ fn sign_ui(message: &[u8]) -> Result<Option<DerEncodedEcdsaSignature>, SyscallEr
                 // everything is displayed on the screen
                 let mut buf = [0u8; 20];
 
-                let (titles, messages) = utils::create_messages(tx, &mut buf);
-                TxScroller::new(&titles[..], &messages[..]).event_loop();
+                let (titles, messages, length) = utils::create_messages(tx, &mut buf);
+                TxScroller::new(&titles[..length], &messages[..length]).event_loop();
             }
             Err(_err) => {
                 let hex = utils::to_hex(message).map_err(|_| SyscallError::Overflow)?;
