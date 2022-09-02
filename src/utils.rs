@@ -45,9 +45,16 @@ pub fn create_messages<'a>(
             }
 
             {
-                cursor += 1;
-                titles[cursor - 1..cursor].clone_from_slice(&[&"Asset"]);
-                messages[cursor - 1..cursor].clone_from_slice(&[&"WEST"]);
+                if asset.is_none() {
+                    cursor += 1;
+                    titles[cursor - 1..cursor].clone_from_slice(&[&"Asset"]);
+                    messages[cursor - 1..cursor].clone_from_slice(&[&"WEST"]);
+                } else {
+                    // TODO: Display asset hash
+                    cursor += 1;
+                    titles[cursor - 1..cursor].clone_from_slice(&[&"Asset"]);
+                    messages[cursor - 1..cursor].clone_from_slice(&[&"None"]);
+                }
             }
         }
         _ => (),
