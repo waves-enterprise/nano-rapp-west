@@ -2,6 +2,7 @@
 #![no_main]
 
 mod crypto_helpers;
+mod transaction;
 mod utils;
 
 use core::str::from_utf8;
@@ -11,12 +12,8 @@ use nanos_sdk::ecc::DerEncodedEcdsaSignature;
 use nanos_sdk::io;
 use nanos_sdk::io::SyscallError;
 use nanos_ui::ui;
-
-mod transaction;
 use transaction::Transaction;
-
-mod tx_scroller;
-use tx_scroller::TxScroller;
+use utils::tx_scroller::TxScroller;
 
 nanos_sdk::set_panic!(nanos_sdk::exiting_panic);
 
@@ -74,7 +71,7 @@ fn sign_ui(message: &[u8]) -> Result<Option<DerEncodedEcdsaSignature>, SyscallEr
                 // everything is displayed on the screen
                 let mut buf = [0u8; 20];
 
-                let (titles, messages, length) = utils::create_messages(tx, &mut buf);
+                let (titles, messages, length) = utils::messages::create(tx, &mut buf);
                 TxScroller::new(&titles[..length], &messages[..length]).event_loop();
             }
             Err(_err) => {

@@ -1,66 +1,44 @@
-use crate::transaction::transaction_data::*;
-use crate::transaction::Transaction;
+pub mod messages;
+pub mod tx_scroller;
+
 use core::char;
+use core::str::from_utf8_unchecked;
 use numtoa::NumToA;
 
-/// Maximum size of the message list
-const MAX_SIZE: usize = 10;
+const DECIMALS: u64 = 100000000;
 
-/// Converts the transaction structure into messages for display on the screen
-pub fn create_messages<'a>(
-    tx: Transaction,
-    buf: &'a mut [u8],
-) -> ([&'a str; MAX_SIZE], [&'a str; MAX_SIZE], usize) {
-    let mut titles = [""; MAX_SIZE];
-    let mut messages = [""; MAX_SIZE];
+/// Amount formatting
+pub fn print_amount<'a>(number: u64, buf: &'a mut [u8]) -> &str {
+    let mut buffer = [0u8; 20];
+    let mut cursor = 0;
 
-    let mut cursor: usize = 0;
+    let quotient = number.div_euclid(DECIMALS);
+    let reste = number.rem_euclid(DECIMALS);
 
-    // Forms a message about the type of transaction
-    {
-        cursor += 1;
+    let quotient_str = quotient.numtoa_str(10, buf);
+    cursor = quotient_str.as_bytes().len();
+    buffer[..cursor].clone_from_slice(quotient_str.as_bytes());
 
-        titles[cursor - 1..cursor].clone_from_slice(&[&"Review"]);
+    buffer[cursor..cursor + 1].clone_from_slice(b".");
 
-        // TODO: all types
-        match tx.type_id {
-            Type::Transfer => {
-                messages[cursor - 1..cursor].clone_from_slice(&[&"transfer"]);
-            }
-            _ => {
-                messages[cursor - 1..cursor].clone_from_slice(&[&"unknown tx"]);
-            }
-        };
+    cursor += 1;
+
+    let reste_str = reste.numtoa_str(10, buf);
+    if reste_str.len() < 6 {
+        buffer[cursor..cursor + 3].clone_from_slice(b"000");
+    } else if reste_str.len() < 7 {
+        buffer[cursor..cursor + 2].clone_from_slice(b"00");
+        buffer[cursor + 2..cursor + 3].clone_from_slice(reste_str.split_at(1).0.as_bytes());
+    } else if reste_str.len() < 8 {
+        buffer[cursor..cursor + 1].clone_from_slice(b"0");
+        buffer[cursor + 1..cursor + 3].clone_from_slice(reste_str.split_at(2).0.as_bytes());
+    } else {
+        buffer[cursor..cursor + 3].clone_from_slice(reste_str.split_at(3).0.as_bytes());
     }
 
-    // TODO: all types and all fields
-    match tx.data {
-        TransactionData::Transfer { amount, asset, .. } => {
-            {
-                let result = amount.numtoa_str(10, buf);
+    buf[..cursor + 3].clone_from_slice(&buffer[..cursor + 3]);
 
-                cursor += 1;
-                titles[cursor - 1..cursor].clone_from_slice(&[&"Amount"]);
-                messages[cursor - 1..cursor].clone_from_slice(&[&result]);
-            }
-
-            {
-                if asset.is_none() {
-                    cursor += 1;
-                    titles[cursor - 1..cursor].clone_from_slice(&[&"Asset"]);
-                    messages[cursor - 1..cursor].clone_from_slice(&[&"WEST"]);
-                } else {
-                    // TODO: Display asset hash
-                    cursor += 1;
-                    titles[cursor - 1..cursor].clone_from_slice(&[&"Asset"]);
-                    messages[cursor - 1..cursor].clone_from_slice(&[&"None"]);
-                }
-            }
-        }
-        _ => (),
-    }
-
-    (titles, messages, cursor)
+    unsafe { from_utf8_unchecked(buf) }
 }
 
 /// Convert to hex. Returns a static buffer of 64 bytes
