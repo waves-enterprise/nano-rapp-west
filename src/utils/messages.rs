@@ -1,7 +1,7 @@
-use crate::transaction::transaction_data::*;
+use crate::transaction::transaction_data::TransactionData;
 use crate::transaction::type_id::Type;
 use crate::transaction::Transaction;
-use crate::utils::print_amount;
+use crate::utils;
 
 /// Maximum size of the message list
 const MAX_SIZE: usize = 10;
@@ -37,7 +37,7 @@ pub fn create<'a>(
     match tx.data {
         TransactionData::Transfer { amount, asset, .. } => {
             {
-                let result = print_amount(amount, buf);
+                let result = utils::print_amount(amount, buf);
 
                 cursor += 1;
                 titles[cursor - 1..cursor].clone_from_slice(&[&"Amount"]);

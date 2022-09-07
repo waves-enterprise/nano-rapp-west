@@ -2,7 +2,7 @@ pub mod messages;
 pub mod tx_scroller;
 
 use core::char;
-use core::str::from_utf8_unchecked;
+use core::str;
 use numtoa::NumToA;
 
 const DECIMALS: u64 = 100000000;
@@ -38,7 +38,7 @@ pub fn print_amount<'a>(number: u64, buf: &'a mut [u8]) -> &str {
 
     buf[..cursor + 3].clone_from_slice(&buffer[..cursor + 3]);
 
-    unsafe { from_utf8_unchecked(buf) }
+    unsafe { str::from_utf8_unchecked(&buf[..cursor + 3]) }
 }
 
 /// Convert to hex. Returns a static buffer of 64 bytes
