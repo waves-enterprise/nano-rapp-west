@@ -5,6 +5,7 @@ authors = ["yhql"]
 edition = "2018"
 
 [dependencies]
+numtoa = "0.2.4"
 nanos_sdk = { git = "https://github.com/LedgerHQ/ledger-nanos-sdk.git" } 
 nanos_ui = { git = "https://github.com/LedgerHQ/ledger-nanos-ui.git" } 
 
