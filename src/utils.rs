@@ -1,8 +1,7 @@
-pub mod messages;
+pub mod deserialize;
 pub mod tx_scroller;
 
 use core::char;
-use core::str;
 use numtoa::NumToA;
 
 const DECIMALS: u64 = 100000000;

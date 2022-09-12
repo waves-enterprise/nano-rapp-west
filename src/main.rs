@@ -3,6 +3,7 @@
 
 mod crypto_helpers;
 mod transaction;
+mod transactions;
 mod utils;
 
 use core::str::from_utf8;
@@ -12,7 +13,6 @@ use nanos_sdk::ecc::DerEncodedEcdsaSignature;
 use nanos_sdk::io;
 use nanos_sdk::io::SyscallError;
 use nanos_ui::ui;
-use transaction::Transaction;
 use utils::tx_scroller::TxScroller;
 
 nanos_sdk::set_panic!(nanos_sdk::exiting_panic);
@@ -64,14 +64,12 @@ fn menu_example() {
 /// validation, and an exit message.
 fn sign_ui(message: &[u8]) -> Result<Option<DerEncodedEcdsaSignature>, SyscallError> {
     {
-        match Transaction::from_bytes(message) {
-            Ok(tx) => {
-                // This buffer is intended for storing all amounts
-                // and should live all the time until everything is displayed
-                let mut buf = [0u8; 60];
-
-                let (titles, messages, length) = utils::messages::create(tx, &mut buf);
-                TxScroller::new(&titles[..length], &messages[..length]).event_loop();
+        // This buffer is intended for storing all amounts
+        // and should live all the time until everything is displayed
+        let mut buf = [0u8; 60];
+        match transactions::create_messages(message, &mut buf) {
+            Ok((titles, messages, length)) => {
+                TxScroller::new(&titles[..length], &messages[..length]).event_loop()
             }
             Err(_err) => {
                 let hex = utils::to_hex(message).map_err(|_| SyscallError::Overflow)?;
@@ -79,7 +77,7 @@ fn sign_ui(message: &[u8]) -> Result<Option<DerEncodedEcdsaSignature>, SyscallEr
 
                 ui::MessageScroller::new(m).event_loop();
             }
-        };
+        }
     }
 
     if ui::Validator::new("Sign ?").ask() {

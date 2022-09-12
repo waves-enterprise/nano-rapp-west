@@ -12,6 +12,7 @@ pub enum Type {
     SetScript = 13,
     Sponsor = 14,
     SetAssetScript = 15,
+    Undefined,
 }
 
 impl Type {
@@ -29,8 +30,7 @@ impl Type {
             13u8 => Type::SetScript,
             14u8 => Type::Sponsor,
             15u8 => Type::SetAssetScript,
-            // TODO: Maybe another solution is needed
-            _ => panic!("Unknown value: {}", value),
+            _ => Type::Undefined,
         }
     }
 }
