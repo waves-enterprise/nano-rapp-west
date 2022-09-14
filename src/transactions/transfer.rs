@@ -8,6 +8,7 @@ use crate::utils::deserialize::Buffer;
 use core::str;
 
 use crate::transactions::*;
+use crate::{convert_numbers, hash_screen, single_screen};
 
 pub struct Transfer<'a> {
     type_id: Type,
@@ -70,57 +71,25 @@ impl<'a> Transaction<'a> for Transfer<'a> {
 
         let mut cursor: usize = 0;
 
-        // Temporary buffer for numtoa
-        let mut buffer = [0u8; 20];
+        // Convert all the numbers
+        let mut amount: &str;
+        let mut fee: &str;
+        convert_numbers!([self.amount, self.fee], [amount, fee], buf);
 
-        {
-            cursor += 1;
-
-            titles[cursor - 1..cursor].clone_from_slice(&[&"Review"]);
-            messages[cursor - 1..cursor].clone_from_slice(&[&"transfer"]);
-        }
-
-        // Get the formatted fee amount
-        let (fee_bytes, fee_size) = utils::print_amount(self.fee, &mut buffer);
-
-        let (amount_bytes, amount_size) = utils::print_amount(self.amount, &mut buffer);
-
-        // Transfer all amounts from the temp buffer to the total buffer
-        buf[..amount_size].clone_from_slice(&amount_bytes[..amount_size]);
-        buf[amount_size..amount_size + fee_size].clone_from_slice(&fee_bytes[..fee_size]);
+        // Name tx
+        single_screen!("Review", "transfer", cursor, titles, messages);
 
         // Amount
-        {
-            let result = unsafe { str::from_utf8_unchecked(&buf[..amount_size]) };
-
-            cursor += 1;
-            titles[cursor - 1..cursor].clone_from_slice(&[&"Amount"]);
-            messages[cursor - 1..cursor].clone_from_slice(&[&result]);
-        }
+        single_screen!("Amount", amount, cursor, titles, messages);
 
         // Asset
-        {
-            if self.asset.is_none() {
-                cursor += 1;
-                titles[cursor - 1..cursor].clone_from_slice(&[&"Asset"]);
-                messages[cursor - 1..cursor].clone_from_slice(&[&"WEST"]);
-            } else {
-                // TODO: Display asset hash
-                cursor += 1;
-                titles[cursor - 1..cursor].clone_from_slice(&[&"Asset"]);
-                messages[cursor - 1..cursor].clone_from_slice(&[&"None"]);
-            }
-        }
+        hash_screen!("Asset", &self.asset, cursor, titles, messages);
 
         // Fee
-        {
-            let result =
-                unsafe { str::from_utf8_unchecked(&buf[amount_size..amount_size + fee_size]) };
+        single_screen!("Fee", fee, cursor, titles, messages);
 
-            cursor += 1;
-            titles[cursor - 1..cursor].clone_from_slice(&[&"Fee"]);
-            messages[cursor - 1..cursor].clone_from_slice(&[&result]);
-        }
+        // Fee asset
+        hash_screen!("Fee asset", &self.fee_asset, cursor, titles, messages);
 
         (titles, messages, cursor)
     }

@@ -18,7 +18,7 @@ trait Transaction<'a> {
     fn to_messages(&self, buf: &'a mut [u8]) -> ([&'a str; MAX_SIZE], [&'a str; MAX_SIZE], usize);
 }
 
-pub fn create_messages<'a>(
+pub fn create_messages_from_bytes<'a>(
     message: &[u8],
     buf: &'a mut [u8],
 ) -> Result<([&'a str; MAX_SIZE], [&'a str; MAX_SIZE], usize), TransactionError> {

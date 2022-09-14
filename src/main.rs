@@ -67,7 +67,7 @@ fn sign_ui(message: &[u8]) -> Result<Option<DerEncodedEcdsaSignature>, SyscallEr
         // This buffer is intended for storing all amounts
         // and should live all the time until everything is displayed
         let mut buf = [0u8; 60];
-        match transactions::create_messages(message, &mut buf) {
+        match transactions::create_messages_from_bytes(message, &mut buf) {
             Ok((titles, messages, length)) => {
                 TxScroller::new(&titles[..length], &messages[..length]).event_loop()
             }
