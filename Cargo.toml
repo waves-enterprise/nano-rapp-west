@@ -17,4 +17,5 @@ lto = true
 curve = "ed25519"
 flags = "0"
 icon = "crab.gif"
+icon_small = ""
 path = ""

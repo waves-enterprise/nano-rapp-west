@@ -1,6 +1,7 @@
 #![no_std]
 #![no_main]
 
+mod sodium;
 mod transaction;
 mod transactions;
 mod utils;
@@ -11,6 +12,7 @@ use nanos_sdk::ecc::Ed25519;
 use nanos_sdk::io;
 use nanos_sdk::io::SyscallError;
 use nanos_ui::ui;
+use transaction::account::PublicKeyAccount;
 use utils::tx_scroller::TxScroller;
 
 nanos_sdk::set_panic!(nanos_sdk::exiting_panic);
@@ -20,17 +22,12 @@ nanos_sdk::set_panic!(nanos_sdk::exiting_panic);
 fn show_pubkey() {
     let pubkey = Ed25519::new().public_key();
     match pubkey {
-        Ok(pk) => {
-            {
-                let hex0 = utils::to_hex(&pk.as_ref()[1..33]).unwrap();
-                let m = from_utf8(&hex0).unwrap();
-                ui::MessageScroller::new(m).event_loop();
-            }
-            {
-                let hex1 = utils::to_hex(&pk.as_ref()[33..65]).unwrap();
-                let m = from_utf8(&hex1).unwrap();
-                ui::MessageScroller::new(m).event_loop();
-            }
+        Ok(value) => {
+            let pubkey_be = PublicKeyAccount::from_ed25519(value.as_ref());
+
+            let hex = utils::to_hex(pubkey_be.to_bytes()).unwrap();
+            let m = from_utf8(&hex).unwrap();
+            ui::MessageScroller::new(m).event_loop();
         }
         Err(_) => ui::popup("Error"),
     }
@@ -143,7 +140,8 @@ fn handle_apdu(comm: &mut io::Comm, ins: Ins) -> Result<(), Reply> {
             let pk = Ed25519::new()
                 .public_key()
                 .map_err(|x| Reply(0x6eu16 | (x as u16 & 0xff)))?;
-            comm.append(pk.as_ref());
+            let pk_be = PublicKeyAccount::from_ed25519(pk.as_ref());
+            comm.append(pk_be.to_bytes());
         }
         Ins::Sign => {
             let out = sign_ui(comm.get_data()?)?;
