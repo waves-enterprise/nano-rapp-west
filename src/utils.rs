@@ -42,6 +42,7 @@ const DECIMALS: u64 = 100000000;
 /// Converting numbers to a formatted bytes
 fn number_to_formatted_bytes<'a>(number: u64, buf: &'a mut [u8]) -> ([u8; 20], usize) {
     let mut buffer = [0u8; 20];
+    #[allow(unused_assignments)]
     let mut cursor = 0;
 
     let quotient = number.div_euclid(DECIMALS);
