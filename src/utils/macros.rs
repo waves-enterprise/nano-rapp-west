@@ -39,6 +39,7 @@ macro_rules! convert_numbers {
         let mut position = 0;
 
         $(
+            #[allow(unused_assignments)]
             {
                 let value_size = utils::add_number_to_buf($value, offset, $buf);
                 offset += value_size;
@@ -51,9 +52,12 @@ macro_rules! convert_numbers {
         position = 0;
 
         $(
-            $variable = unsafe { str::from_utf8_unchecked(&$buf[offset..offset + sizes[position]]) };
-            offset += sizes[position];
-            position += 1;
+            #[allow(unused_assignments)]
+            {
+                $variable = unsafe { str::from_utf8_unchecked(&$buf[offset..offset + sizes[position]]) };
+                offset += sizes[position];
+                position += 1;
+            }
         )+
     };
 }
