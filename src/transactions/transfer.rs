@@ -72,8 +72,8 @@ impl<'a> Transaction<'a> for Transfer<'a> {
         let mut cursor: usize = 0;
 
         // Convert all the numbers
-        let mut amount: &str;
-        let mut fee: &str;
+        let amount: &str;
+        let fee: &str;
         convert_numbers!([self.amount, self.fee], [amount, fee], buf);
 
         // Name tx
