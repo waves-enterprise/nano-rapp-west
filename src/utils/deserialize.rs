@@ -11,6 +11,26 @@ impl<'a> Buffer<'a> {
         match &self.buffer.first() {
             Some(byte) => {
                 *value = **byte;
+
+                Buffer {
+                    buffer: &self.buffer[1..],
+                }
+            }
+            None => Buffer {
+                buffer: self.buffer,
+            },
+        }
+    }
+
+    pub fn get_bool(self: &mut Buffer<'a>, value: &mut bool) -> Buffer {
+        match &self.buffer.first() {
+            Some(byte) => {
+                if **byte == 0u8 {
+                    *value = false;
+                } else if **byte == 1u8 {
+                    *value = true;
+                }
+
                 Buffer {
                     buffer: &self.buffer[1..],
                 }
@@ -25,6 +45,7 @@ impl<'a> Buffer<'a> {
         match &self.buffer.get(0..size) {
             Some(bytes) => {
                 value.clone_from_slice(bytes);
+
                 Buffer {
                     buffer: &self.buffer[size..],
                 }
@@ -47,6 +68,7 @@ impl<'a> Buffer<'a> {
                     match &self.buffer.get(1..size + 1) {
                         Some(bytes) => {
                             value.clone_from_slice(bytes);
+
                             Buffer {
                                 buffer: &self.buffer[size + 1..],
                             }
