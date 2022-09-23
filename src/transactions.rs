@@ -1,5 +1,11 @@
-pub mod transfer;
+mod create_contract;
+mod issue;
+mod reissue;
+mod transfer;
 
+use create_contract::CreateContract;
+use issue::Issue;
+use reissue::Reissue;
 use transfer::Transfer;
 
 use crate::transaction::type_id::Type;
@@ -30,7 +36,12 @@ pub fn create_messages_from_bytes<'a>(
     buffer.get_byte(&mut type_id).get_byte(&mut version);
 
     match (Type::from_u8(type_id), Version::from_u8(version)) {
+        (Type::Issue, Version::V2) => Ok(Issue::from_bytes(message).to_messages(buf)),
         (Type::Transfer, Version::V2) => Ok(Transfer::from_bytes(message).to_messages(buf)),
+        (Type::Reissue, Version::V2) => Ok(Reissue::from_bytes(message).to_messages(buf)),
+        (Type::CreateContract, Version::V2) => {
+            Ok(CreateContract::from_bytes(message).to_messages(buf))
+        }
         _ => Err(TransactionError::IncorrectTransaction),
     }
 }

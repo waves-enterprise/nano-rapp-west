@@ -12,6 +12,7 @@ pub enum Type {
     SetScript = 13,
     Sponsor = 14,
     SetAssetScript = 15,
+    CreateContract = 103,
     Undefined,
 }
 
@@ -30,6 +31,7 @@ impl Type {
             13u8 => Type::SetScript,
             14u8 => Type::Sponsor,
             15u8 => Type::SetAssetScript,
+            103u8 => Type::CreateContract,
             _ => Type::Undefined,
         }
     }
