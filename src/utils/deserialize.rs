@@ -59,12 +59,11 @@ impl<'a> Buffer<'a> {
     pub fn get_bytes_flag(self: &mut Buffer<'a>, value: &mut [u8], size: usize) -> Buffer {
         match &self.buffer.first() {
             Some(flag) => {
-                // TODO: CHANGED
-                if **flag == 1u8 {
+                if **flag == 0u8 {
                     Buffer {
                         buffer: &self.buffer[1..],
                     }
-                } else if **flag == 0u8 {
+                } else if **flag == 1u8 {
                     match &self.buffer.get(1..size + 1) {
                         Some(bytes) => {
                             value.clone_from_slice(bytes);
