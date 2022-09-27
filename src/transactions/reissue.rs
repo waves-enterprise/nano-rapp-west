@@ -1,9 +1,6 @@
 use crate::transaction::account::{PublicKeyAccount, PUBLIC_KEY_LENGTH};
 use crate::transaction::hash::{Asset, Hash, HASH_LENGTH};
-use crate::transaction::type_id::Type;
-use crate::transaction::version::Version;
 use crate::utils;
-use crate::utils::deserialize::Buffer;
 
 use core::str;
 
