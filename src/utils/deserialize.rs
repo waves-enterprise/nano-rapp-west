@@ -87,4 +87,31 @@ impl<'a> Buffer<'a> {
             },
         }
     }
+
+    pub fn get_string(self: &mut Buffer<'a>, value: &mut [u8]) -> Buffer {
+        match &self.buffer.get(..2) {
+            Some(length_bytes) => {
+                let mut temp = [0u8; 2];
+                temp.clone_from_slice(length_bytes);
+
+                let length = i16::from_be_bytes(temp) as usize;
+
+                match &self.buffer.get(2..length + 2) {
+                    Some(bytes) => {
+                        value[..length].clone_from_slice(&bytes[..length]);
+
+                        Buffer {
+                            buffer: &self.buffer[length + 2..],
+                        }
+                    }
+                    None => Buffer {
+                        buffer: self.buffer,
+                    },
+                }
+            }
+            None => Buffer {
+                buffer: self.buffer,
+            },
+        }
+    }
 }
