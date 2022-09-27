@@ -1,8 +1,10 @@
+mod burn;
 mod create_contract;
 mod issue;
 mod reissue;
 mod transfer;
 
+use burn::Burn;
 use create_contract::CreateContract;
 use issue::Issue;
 use reissue::Reissue;
@@ -39,6 +41,7 @@ pub fn create_messages_from_bytes<'a>(
         (Type::Issue, Version::V2) => Ok(Issue::from_bytes(message).to_messages(buf)),
         (Type::Transfer, Version::V2) => Ok(Transfer::from_bytes(message).to_messages(buf)),
         (Type::Reissue, Version::V2) => Ok(Reissue::from_bytes(message).to_messages(buf)),
+        (Type::Burn, Version::V2) => Ok(Burn::from_bytes(message).to_messages(buf)),
         (Type::CreateContract, Version::V2) => {
             Ok(CreateContract::from_bytes(message).to_messages(buf))
         }
