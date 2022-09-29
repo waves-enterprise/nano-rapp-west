@@ -72,10 +72,8 @@ fn sign_ui(message: &[u8]) -> Result<Option<DerEncodedEcdsaSignature>, SyscallEr
                 TxScroller::new(&titles[..length], &messages[..length]).event_loop()
             }
             Err(_err) => {
-                let hex = utils::to_hex(message).map_err(|_| SyscallError::Overflow)?;
-                let m = from_utf8(&hex).map_err(|_| SyscallError::InvalidParameter)?;
-
-                ui::MessageScroller::new(m).event_loop();
+                ui::popup("Invalid transaction");
+                return Ok(None);
             }
         }
     }
