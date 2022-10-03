@@ -1,3 +1,5 @@
+use crate::transaction::data_entry::DataEntry;
+
 pub struct Buffer<'a> {
     buffer: &'a [u8],
 }
@@ -8,110 +10,154 @@ impl<'a> Buffer<'a> {
     }
 
     pub fn get_byte(self: &mut Buffer<'a>, value: &mut u8) -> Buffer {
-        match &self.buffer.first() {
-            Some(byte) => {
-                *value = **byte;
-
-                Buffer {
-                    buffer: &self.buffer[1..],
-                }
-            }
-            None => Buffer {
-                buffer: self.buffer,
-            },
-        }
+        let (byte, buffer) = get_byte(self.buffer);
+        *value = byte;
+        Buffer { buffer }
     }
 
     pub fn get_bool(self: &mut Buffer<'a>, value: &mut bool) -> Buffer {
-        match &self.buffer.first() {
-            Some(byte) => {
-                if **byte == 0u8 {
-                    *value = false;
-                } else if **byte == 1u8 {
-                    *value = true;
-                }
-
-                Buffer {
-                    buffer: &self.buffer[1..],
-                }
-            }
-            None => Buffer {
-                buffer: self.buffer,
-            },
-        }
+        let (byte, buffer) = get_byte(self.buffer);
+        *value = to_bool(byte);
+        Buffer { buffer }
     }
 
     pub fn get_bytes(self: &mut Buffer<'a>, value: &mut [u8], size: usize) -> Buffer {
-        match &self.buffer.get(0..size) {
-            Some(bytes) => {
-                value.clone_from_slice(bytes);
-
-                Buffer {
-                    buffer: &self.buffer[size..],
-                }
-            }
-            None => Buffer {
-                buffer: self.buffer,
-            },
-        }
+        let buffer = get_bytes(self.buffer, value, size);
+        Buffer { buffer }
     }
 
     pub fn get_bytes_flag(self: &mut Buffer<'a>, value: &mut [u8], size: usize) -> Buffer {
-        match &self.buffer.first() {
-            Some(flag) => {
-                if **flag == 0u8 {
-                    Buffer {
-                        buffer: &self.buffer[1..],
-                    }
-                } else if **flag == 1u8 {
-                    match &self.buffer.get(1..size + 1) {
-                        Some(bytes) => {
-                            value.clone_from_slice(bytes);
+        let (byte, buffer) = get_byte(self.buffer);
+        let flag = to_bool(byte);
 
-                            Buffer {
-                                buffer: &self.buffer[size + 1..],
-                            }
-                        }
-                        None => Buffer {
-                            buffer: self.buffer,
-                        },
-                    }
-                } else {
-                    Buffer {
-                        buffer: self.buffer,
-                    }
-                }
-            }
-            None => Buffer {
-                buffer: self.buffer,
-            },
+        if flag {
+            let buffer = get_bytes(buffer, value, size);
+            Buffer { buffer }
+        } else {
+            Buffer { buffer }
         }
     }
 
     pub fn get_string(self: &mut Buffer<'a>, value: &mut [u8]) -> Buffer {
-        match &self.buffer.get(..2) {
-            Some(length_bytes) => {
-                let mut temp = [0u8; 2];
-                temp.clone_from_slice(length_bytes);
+        let buffer = get_string(self.buffer, value);
+        Buffer { buffer }
+    }
 
-                let length = i16::from_be_bytes(temp) as usize;
+    // TODO: may not be needed in the future
+    pub fn skip_string(self: &mut Buffer<'a>) -> Buffer {
+        let buffer = skip_string(self.buffer);
+        Buffer { buffer }
+    }
 
-                match &self.buffer.get(2..length + 2) {
-                    Some(bytes) => {
-                        value[..length].clone_from_slice(&bytes[..length]);
+    // TODO: change to get_params
+    // TODO: may not be needed in the future
+    pub fn skip_params(self: &mut Buffer<'a>) -> Buffer {
+        let (byte, buffer) = get_byte(self.buffer);
+        let flag = to_bool(byte);
 
-                        Buffer {
-                            buffer: &self.buffer[length + 2..],
-                        }
-                    }
-                    None => Buffer {
-                        buffer: self.buffer,
-                    },
+        if flag {
+            let (mut count, mut buffer) = get_u8(buffer);
+            if count > 0 {
+                while count > 0 {
+                    // TODO: parse key and value
+                    buffer = skip_string(buffer);
+                    let (value, buf) = skip_value(buffer);
+                    buffer = buf;
+                    count -= 1;
                 }
+                Buffer { buffer }
+            } else {
+                Buffer { buffer }
             }
-            None => Buffer {
-                buffer: self.buffer,
-            },
+        } else {
+            Buffer { buffer }
         }
+    }
+}
+
+fn get_byte<'a>(buffer: &'a [u8]) -> (u8, &'a [u8]) {
+    match buffer.first() {
+        Some(byte) => (*byte, &buffer[1..]),
+        None => (0u8, buffer),
+    }
+}
+
+fn get_bytes<'a>(buffer: &'a [u8], value: &mut [u8], size: usize) -> &'a [u8] {
+    match buffer.get(..size) {
+        Some(bytes) => {
+            value[..size].clone_from_slice(&bytes[..size]);
+            &buffer[size..]
+        }
+        None => buffer,
+    }
+}
+
+fn get_u8<'a>(buffer: &'a [u8]) -> (usize, &'a [u8]) {
+    let mut temp = [0u8; 1];
+    let buffer = get_bytes(buffer, &mut temp, 1);
+
+    (u8::from_be_bytes(temp) as usize, buffer)
+}
+
+fn get_u16<'a>(buffer: &'a [u8]) -> (usize, &'a [u8]) {
+    let mut temp = [0u8; 2];
+    let buffer = get_bytes(buffer, &mut temp, 2);
+
+    (u16::from_be_bytes(temp) as usize, buffer)
+}
+
+fn get_u64<'a>(buffer: &'a [u8]) -> (u64, &'a [u8]) {
+    let mut temp = [0u8; 8];
+    let buffer = get_bytes(buffer, &mut temp, 8);
+
+    (u64::from_be_bytes(temp), buffer)
+}
+
+fn get_string<'a>(buffer: &'a [u8], value: &mut [u8]) -> &'a [u8] {
+    let (length, buffer) = get_u16(buffer);
+
+    if length > 0 {
+        get_bytes(buffer, value, length)
+    } else {
+        buffer
+    }
+}
+
+// TODO: may not be needed in the future
+fn skip_string<'a>(buffer: &'a [u8]) -> &'a [u8] {
+    let (length, buffer) = get_u16(buffer);
+
+    if length > 0 {
+        &buffer[length..]
+    } else {
+        buffer
+    }
+}
+
+// TODO: change to get_value
+// TODO: may not be needed in the future
+fn skip_value<'a>(buffer: &'a [u8]) -> (DataEntry, &'a [u8]) {
+    let (byte, buffer) = get_byte(buffer);
+
+    if byte == 0u8 {
+        let (value, buffer) = get_u64(buffer);
+        (DataEntry::Integer(value), buffer)
+    } else if byte == 1u8 {
+        let (byte, buffer) = get_byte(buffer);
+        (DataEntry::Boolean(to_bool(byte)), buffer)
+    } else if byte == 2u8 {
+        (DataEntry::Binary, skip_string(buffer))
+    } else if byte == 3u8 {
+        (DataEntry::String, skip_string(buffer))
+    } else {
+        (DataEntry::Undefined, buffer)
+    }
+}
+
+fn to_bool(byte: u8) -> bool {
+    if byte == 1u8 {
+        true
+    } else {
+        false
     }
 }

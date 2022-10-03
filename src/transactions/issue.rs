@@ -42,7 +42,7 @@ impl<'a> Transaction<'a> for Issue {
             .get_byte(&mut chain_id)
             .get_bytes(&mut sender_public_key, PUBLIC_KEY_LENGTH)
             .get_string(&mut name)
-            .get_string(&mut description)
+            .skip_string() // TODO: .get_string(&mut description)
             .get_bytes(&mut quantity, 8)
             .get_byte(&mut decimals)
             .get_bool(&mut reissuable)
