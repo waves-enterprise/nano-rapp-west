@@ -1,4 +1,5 @@
 /// Transaction version
+#[derive(PartialEq)]
 pub enum Version {
     V1 = 1,
     V2 = 2,

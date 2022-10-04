@@ -1,4 +1,5 @@
 /// Transaction type
+#[derive(PartialEq)]
 pub enum Type {
     Issue = 3,
     Transfer = 4,
