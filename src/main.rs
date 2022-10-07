@@ -1,5 +1,8 @@
 #![no_std]
 #![no_main]
+#![feature(custom_test_frameworks)]
+#![test_runner(nanos_sdk::sdk_test_runner)]
+#![reexport_test_harness_main = "test_main"]
 
 mod crypto_helpers;
 mod transaction;
@@ -92,6 +95,9 @@ fn sign_ui(message: &[u8]) -> Result<Option<DerEncodedEcdsaSignature>, SyscallEr
 #[no_mangle]
 extern "C" fn sample_main() {
     let mut comm = io::Comm::new();
+
+    #[cfg(test)]
+    test_main();
 
     loop {
         // Draw some 'welcome' screen

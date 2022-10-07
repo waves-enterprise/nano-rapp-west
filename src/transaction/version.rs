@@ -19,3 +19,46 @@ impl Version {
         }
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    use nanos_sdk::TestType;
+
+    fn version_1() -> Result<(), ()> {
+        let v1 = 1u8;
+        let version = Version::from_u8(v1);
+
+        if Version::V1 == version {
+            Ok(())
+        } else {
+            Err(())
+        }
+    }
+
+    fn version_42() -> Result<(), ()> {
+        let v42 = 42u8;
+        let version = Version::from_u8(v42);
+
+        if Version::Undefined == version {
+            Ok(())
+        } else {
+            Err(())
+        }
+    }
+
+    #[test_case]
+    const TEST_version_1: TestType = TestType {
+        modname: "version",
+        name: "version_1",
+        f: version_1,
+    };
+
+    #[test_case]
+    const TEST_version_42: TestType = TestType {
+        modname: "version",
+        name: "version_42",
+        f: version_42,
+    };
+}

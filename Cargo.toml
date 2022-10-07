@@ -4,17 +4,20 @@ version = "0.2.0"
 authors = ["yhql"]
 edition = "2018"
 
+[dev-dependencies]
+nanos_sdk = { git = "https://github.com/deadblackclover/ledger-nanos-sdk", branch = "fix_sdk_test_runner", features = ["speculos"] }
+
 [dependencies]
 numtoa = "0.2.4"
-nanos_sdk = { git = "https://github.com/LedgerHQ/ledger-nanos-sdk.git" } 
-nanos_ui = { git = "https://github.com/LedgerHQ/ledger-nanos-ui.git" } 
+nanos_sdk = { git = "https://github.com/deadblackclover/ledger-nanos-sdk", branch = "fix_sdk_test_runner" }
+nanos_ui = { git = "https://github.com/deadblackclover/ledger-nanos-ui", branch = "fix_sdk_test_runner" }
 
 [profile.dev]
 panic = "abort"
 
 [profile.release]
 panic = "abort"
-opt-level = 'z' 
+opt-level = 'z'
 lto = true
 
 [package.metadata.nanos]

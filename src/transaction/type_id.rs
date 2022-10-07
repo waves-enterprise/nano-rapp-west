@@ -37,3 +37,46 @@ impl Type {
         }
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    use nanos_sdk::TestType;
+
+    fn type_4() -> Result<(), ()> {
+        let transfer_type = 4u8;
+        let type_id = Type::from_u8(transfer_type);
+
+        if Type::Transfer == type_id {
+            Ok(())
+        } else {
+            Err(())
+        }
+    }
+
+    fn type_42() -> Result<(), ()> {
+        let random_type = 42u8;
+        let type_id = Type::from_u8(random_type);
+
+        if Type::Undefined == type_id {
+            Ok(())
+        } else {
+            Err(())
+        }
+    }
+
+    #[test_case]
+    const TEST_type_4: TestType = TestType {
+        modname: "type_id",
+        name: "type_4",
+        f: type_4,
+    };
+
+    #[test_case]
+    const TEST_type_42: TestType = TestType {
+        modname: "type_id",
+        name: "type_42",
+        f: type_42,
+    };
+}
