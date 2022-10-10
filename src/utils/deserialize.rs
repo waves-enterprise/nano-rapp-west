@@ -161,3 +161,93 @@ fn to_bool(byte: u8) -> bool {
         false
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    use nanos_sdk::TestType;
+
+    const BYTES: [u8; 12] = [1u8, 1u8, 2u8, 2u8, 1u8, 2u8, 2u8, 0u8, 3u8, 2u8, 2u8, 2u8];
+    const SKIP_STRING_BYTES: [u8; 7] = [0u8, 4u8, 1u8, 1u8, 1u8, 1u8, 42u8];
+    const SKIP_PARAMS_BYTES: [u8; 8] = [1u8, 1u8, 0u8, 1u8, 1u8, 1u8, 1u8, 42u8];
+
+    fn basic() -> Result<(), ()> {
+        let mut buffer = Buffer::new(&BYTES);
+
+        let mut byte = 0u8;
+        let mut bool_value = false;
+        let mut bytes = [0u8; 2];
+        let mut bytes_flag = [0u8; 2];
+        let mut string = [0u8; 3];
+
+        buffer
+            .get_byte(&mut byte)
+            .get_bool(&mut bool_value)
+            .get_bytes(&mut bytes, 2)
+            .get_bytes_flag(&mut bytes_flag, 2)
+            .get_string(&mut string);
+
+        let mut result = false;
+        result = 1 == byte;
+        result = true == bool_value;
+        result = [2u8; 2] == bytes;
+        result = [2u8; 2] == bytes_flag;
+        result = [2u8; 3] == string;
+
+        if result {
+            Ok(())
+        } else {
+            Err(())
+        }
+    }
+
+    fn skip_string() -> Result<(), ()> {
+        let mut buffer = Buffer::new(&SKIP_STRING_BYTES);
+
+        let mut byte = 0u8;
+
+        buffer.skip_string().get_byte(&mut byte);
+
+        if 42 == byte {
+            Ok(())
+        } else {
+            Err(())
+        }
+    }
+
+    fn skip_params() -> Result<(), ()> {
+        let mut buffer = Buffer::new(&SKIP_PARAMS_BYTES);
+
+        let mut byte = 0u8;
+
+        buffer.skip_params().get_byte(&mut byte);
+
+        if 42 == byte {
+            Ok(())
+        } else {
+            Err(())
+        }
+    }
+
+    #[test_case]
+    const TEST_basic: TestType = TestType {
+        modname: "deserialize",
+        name: "basic",
+        f: basic,
+    };
+
+    #[test_case]
+    const TEST_skip_string: TestType = TestType {
+        modname: "deserialize",
+        name: "skip_string",
+        f: skip_string,
+    };
+
+    #[test_case]
+    const TEST_skip_params: TestType = TestType {
+        modname: "deserialize",
+        name: "skip_params",
+        f: skip_params,
+    };
+}
