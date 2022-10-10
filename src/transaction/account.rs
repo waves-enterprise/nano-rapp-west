@@ -34,7 +34,7 @@ mod tests {
     use nanos_sdk::TestType;
 
     fn account_address() -> Result<(), ()> {
-        let bytes = [0u8; 26];
+        let bytes = [0; ADDRESS_LENGTH];
         let address = Address::new(bytes);
 
         if bytes == *address.to_bytes() {
@@ -45,7 +45,7 @@ mod tests {
     }
 
     fn account_public_key() -> Result<(), ()> {
-        let bytes = [0u8; 32];
+        let bytes = [0; PUBLIC_KEY_LENGTH];
         let pk = PublicKeyAccount::new(bytes);
 
         if bytes == *pk.to_bytes() {

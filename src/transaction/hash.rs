@@ -50,7 +50,7 @@ mod tests {
     use nanos_sdk::TestType;
 
     fn hash_zero() -> Result<(), ()> {
-        let bytes = [0u8; 32];
+        let bytes = [0; HASH_LENGTH];
         let hash = Hash::new(bytes);
 
         if bytes == hash.to_bytes() {
@@ -61,7 +61,7 @@ mod tests {
     }
 
     fn hash_zero_is_empty() -> Result<(), ()> {
-        let zero_bytes = [0u8; 32];
+        let zero_bytes = [0; HASH_LENGTH];
         let hash = Hash::new(zero_bytes);
 
         if hash.is_empty() {
@@ -72,7 +72,7 @@ mod tests {
     }
 
     fn hash_one_is_empty() -> Result<(), ()> {
-        let one_bytes = [1u8; 32];
+        let one_bytes = [1; HASH_LENGTH];
         let hash = Hash::new(one_bytes);
 
         if !hash.is_empty() {
@@ -83,7 +83,7 @@ mod tests {
     }
 
     fn hash_zero_asset() -> Result<(), ()> {
-        let west_bytes = [0u8; 32];
+        let west_bytes = [0; HASH_LENGTH];
         let hash = Hash::new(west_bytes);
 
         if hash.to_asset().is_none() {
@@ -94,7 +94,7 @@ mod tests {
     }
 
     fn hash_one_asset() -> Result<(), ()> {
-        let asset_bytes = [1u8; 32];
+        let asset_bytes = [1; HASH_LENGTH];
         let hash = Hash::new(asset_bytes);
 
         if hash.to_asset().is_some() {
