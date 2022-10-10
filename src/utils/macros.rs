@@ -61,3 +61,53 @@ macro_rules! convert_numbers {
         )+
     };
 }
+
+#[macro_export]
+macro_rules! impl_simple_test {
+    ($tx:ident, $type_id:expr, $version:expr) => {
+        #[cfg(test)]
+        impl $tx {
+            pub fn get_type_id(&self) -> Type {
+                self.type_id
+            }
+
+            pub fn get_version(&self) -> Version {
+                self.version
+            }
+
+            pub fn get_fee(&self) -> u64 {
+                self.fee
+            }
+        }
+
+        #[cfg(test)]
+        mod tests {
+            use super::*;
+
+            use nanos_sdk::TestType;
+
+            fn run() -> Result<(), ()> {
+                let tx = $tx::from_bytes(&BYTES);
+
+                let mut result = false;
+
+                result = tx.get_type_id() == $type_id;
+
+                result = tx.get_version() == $version;
+
+                if result {
+                    Ok(())
+                } else {
+                    Err(())
+                }
+            }
+
+            #[test_case]
+            const TEST: TestType = TestType {
+                modname: "transactions",
+                name: stringify!($tx),
+                f: run,
+            };
+        }
+    };
+}

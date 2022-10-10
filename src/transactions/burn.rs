@@ -5,7 +5,7 @@ use crate::utils;
 use core::str;
 
 use crate::transactions::*;
-use crate::{convert_numbers, single_screen};
+use crate::{convert_numbers, impl_simple_test, single_screen};
 
 pub struct Burn {
     type_id: Type,
@@ -76,3 +76,6 @@ impl<'a> Transaction<'a> for Burn {
         (titles, messages, cursor)
     }
 }
+
+const BYTES: [u8; 2] = [6, 2];
+impl_simple_test!(Burn, Type::Burn, Version::V2);
