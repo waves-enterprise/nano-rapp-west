@@ -1,5 +1,5 @@
 /// Transaction type
-#[derive(PartialEq)]
+#[derive(Clone, Copy, PartialEq)]
 pub enum Type {
     Issue = 3,
     Transfer = 4,
@@ -44,22 +44,16 @@ mod tests {
 
     use nanos_sdk::TestType;
 
-    fn type_4() -> Result<(), ()> {
-        let transfer_type = 4u8;
-        let type_id = Type::from_u8(transfer_type);
-
-        if Type::Transfer == type_id {
+    fn type_transfer() -> Result<(), ()> {
+        if Type::Transfer == Type::from_u8(4u8) {
             Ok(())
         } else {
             Err(())
         }
     }
 
-    fn type_42() -> Result<(), ()> {
-        let random_type = 42u8;
-        let type_id = Type::from_u8(random_type);
-
-        if Type::Undefined == type_id {
+    fn type_undefined() -> Result<(), ()> {
+        if Type::Undefined == Type::from_u8(42u8) {
             Ok(())
         } else {
             Err(())
@@ -67,16 +61,16 @@ mod tests {
     }
 
     #[test_case]
-    const TEST_type_4: TestType = TestType {
+    const TEST_type_transfer: TestType = TestType {
         modname: "type_id",
-        name: "type_4",
-        f: type_4,
+        name: "type_transfer",
+        f: type_transfer,
     };
 
     #[test_case]
-    const TEST_type_42: TestType = TestType {
+    const TEST_type_undefined: TestType = TestType {
         modname: "type_id",
-        name: "type_42",
-        f: type_42,
+        name: "type_undefined",
+        f: type_undefined,
     };
 }

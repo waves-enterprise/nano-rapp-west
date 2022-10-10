@@ -1,5 +1,5 @@
 /// Transaction version
-#[derive(PartialEq)]
+#[derive(Clone, Copy, PartialEq)]
 pub enum Version {
     V1 = 1,
     V2 = 2,
@@ -26,22 +26,16 @@ mod tests {
 
     use nanos_sdk::TestType;
 
-    fn version_1() -> Result<(), ()> {
-        let v1 = 1u8;
-        let version = Version::from_u8(v1);
-
-        if Version::V1 == version {
+    fn version() -> Result<(), ()> {
+        if Version::V1 == Version::from_u8(1u8) {
             Ok(())
         } else {
             Err(())
         }
     }
 
-    fn version_42() -> Result<(), ()> {
-        let v42 = 42u8;
-        let version = Version::from_u8(v42);
-
-        if Version::Undefined == version {
+    fn version_undefined() -> Result<(), ()> {
+        if Version::Undefined == Version::from_u8(42u8) {
             Ok(())
         } else {
             Err(())
@@ -49,16 +43,16 @@ mod tests {
     }
 
     #[test_case]
-    const TEST_version_1: TestType = TestType {
+    const TEST_version: TestType = TestType {
         modname: "version",
-        name: "version_1",
-        f: version_1,
+        name: "version",
+        f: version,
     };
 
     #[test_case]
-    const TEST_version_42: TestType = TestType {
+    const TEST_version_undefined: TestType = TestType {
         modname: "version",
-        name: "version_42",
-        f: version_42,
+        name: "version_undefined",
+        f: version_undefined,
     };
 }
