@@ -64,7 +64,7 @@ macro_rules! convert_numbers {
 
 #[macro_export]
 macro_rules! impl_simple_test {
-    ($tx:ident, $type_id:expr, $version:expr) => {
+    ($tx:ident, $type_id:expr, $version:expr, $fee:expr) => {
         #[cfg(test)]
         impl $tx {
             pub fn get_type_id(&self) -> Type {
@@ -94,6 +94,8 @@ macro_rules! impl_simple_test {
                 result = tx.get_type_id() == $type_id;
 
                 result = tx.get_version() == $version;
+
+                result = tx.get_fee() == $fee;
 
                 if result {
                     Ok(())
