@@ -1,5 +1,5 @@
 [package]
-name = "rust-app"
+name = "nano-rapp-west"
 version = "0.2.0"
 authors = ["yhql"]
 edition = "2018"
