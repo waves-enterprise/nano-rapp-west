@@ -1,6 +1,6 @@
-# Rust Nano S Application 
+# Ledger Waves Enterprise Nano App
 
-A simple application that receives a message, displays it, and requests user approval to sign. Can also display an example menu.
+This is a Ledger devices wallet app for Waves Enterprise.
 
 ## Building
 
