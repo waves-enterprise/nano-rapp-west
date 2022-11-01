@@ -5,9 +5,9 @@ use crate::utils;
 use core::str;
 
 use crate::transactions::*;
-use crate::{convert_numbers, hash_screen, single_screen};
+use crate::{convert_numbers, hash_screen, impl_simple_test, single_screen};
 
-pub struct Transfer<'a> {
+pub struct Transfer {
     type_id: Type,
     version: Version,
     sender_public_key: PublicKeyAccount,
@@ -17,10 +17,9 @@ pub struct Transfer<'a> {
     amount: u64,
     fee: u64,
     recipient: Address,
-    attachment: Option<&'a str>,
 }
 
-impl<'a> Transaction<'a> for Transfer<'a> {
+impl<'a> Transaction<'a> for Transfer {
     fn from_bytes(bytes: &[u8]) -> Self {
         let mut buffer = Buffer::new(bytes);
 
@@ -58,7 +57,6 @@ impl<'a> Transaction<'a> for Transfer<'a> {
             amount: u64::from_be_bytes(amount),
             fee: u64::from_be_bytes(fee),
             recipient: Address::new(recipient),
-            attachment: None, // TODO: Parse attachment
         }
     }
 
@@ -91,3 +89,15 @@ impl<'a> Transaction<'a> for Transfer<'a> {
         (titles, messages, cursor)
     }
 }
+
+const BYTES: [u8; 141] = [
+    4, 2, 30, 179, 95, 61, 75, 82, 107, 179, 157, 154, 213, 160, 129, 207, 205, 75, 153, 37, 53,
+    128, 108, 244, 145, 136, 134, 145, 43, 17, 46, 65, 200, 8, 0, 0, 0, 0, 1, 116, 16, 180, 2, 72,
+    0, 0, 0, 0, 5, 245, 225, 0, 0, 0, 0, 0, 0, 15, 66, 64, 1, 86, 64, 178, 202, 112, 130, 11, 170,
+    59, 133, 11, 247, 67, 236, 108, 82, 199, 157, 226, 40, 227, 255, 5, 251, 149, 0, 53, 2, 177,
+    218, 94, 250, 30, 209, 137, 196, 245, 194, 30, 23, 37, 110, 45, 233, 145, 134, 180, 44, 180,
+    125, 63, 125, 60, 183, 50, 1, 88, 109, 231, 132, 235, 246, 250, 38, 154, 127, 34, 104, 204,
+    206, 90, 191, 69, 182, 4, 4, 120, 236, 31, 54,
+];
+
+impl_simple_test!(Transfer, Type::Transfer, Version::V2, 1000000);

@@ -42,3 +42,100 @@ impl Hash {
         }
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    use nanos_sdk::TestType;
+
+    fn hash_zero() -> Result<(), ()> {
+        let bytes = [0; HASH_LENGTH];
+        let hash = Hash::new(bytes);
+
+        if bytes == hash.to_bytes() {
+            Ok(())
+        } else {
+            Err(())
+        }
+    }
+
+    fn hash_zero_is_empty() -> Result<(), ()> {
+        let zero_bytes = [0; HASH_LENGTH];
+        let hash = Hash::new(zero_bytes);
+
+        if hash.is_empty() {
+            Ok(())
+        } else {
+            Err(())
+        }
+    }
+
+    fn hash_one_is_empty() -> Result<(), ()> {
+        let one_bytes = [1; HASH_LENGTH];
+        let hash = Hash::new(one_bytes);
+
+        if !hash.is_empty() {
+            Ok(())
+        } else {
+            Err(())
+        }
+    }
+
+    fn hash_zero_asset() -> Result<(), ()> {
+        let west_bytes = [0; HASH_LENGTH];
+        let hash = Hash::new(west_bytes);
+
+        if hash.to_asset().is_none() {
+            Ok(())
+        } else {
+            Err(())
+        }
+    }
+
+    fn hash_one_asset() -> Result<(), ()> {
+        let asset_bytes = [1; HASH_LENGTH];
+        let hash = Hash::new(asset_bytes);
+
+        if hash.to_asset().is_some() {
+            Ok(())
+        } else {
+            Err(())
+        }
+    }
+
+    #[test_case]
+    const TEST_hash_zero: TestType = TestType {
+        modname: "hash",
+        name: "hash_zero",
+        f: hash_zero,
+    };
+
+    #[test_case]
+    const TEST_hash_zero_is_empty: TestType = TestType {
+        modname: "hash",
+        name: "hash_zero_is_empty",
+        f: hash_zero_is_empty,
+    };
+
+    #[test_case]
+    const TEST_hash_one_is_empty: TestType = TestType {
+        modname: "hash",
+        name: "hash_one_is_empty",
+        f: hash_one_is_empty,
+    };
+
+    #[test_case]
+    const TEST_hash_zero_asset: TestType = TestType {
+        modname: "hash",
+        name: "hash_zero_asset",
+        f: hash_zero_asset,
+    };
+
+    #[test_case]
+    const TEST_hash_one_asset: TestType = TestType {
+        modname: "hash",
+        name: "hash_one_asset",
+        f: hash_one_asset,
+    };
+}

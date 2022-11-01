@@ -54,3 +54,46 @@ impl PublicKeyAccount {
         public_key_be
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    use nanos_sdk::TestType;
+
+    fn account_address() -> Result<(), ()> {
+        let bytes = [0; ADDRESS_LENGTH];
+        let address = Address::new(bytes);
+
+        if bytes == *address.to_bytes() {
+            Ok(())
+        } else {
+            Err(())
+        }
+    }
+
+    fn account_public_key() -> Result<(), ()> {
+        let bytes = [0; PUBLIC_KEY_LENGTH];
+        let pk = PublicKeyAccount::new(bytes);
+
+        if bytes == *pk.to_bytes() {
+            Ok(())
+        } else {
+            Err(())
+        }
+    }
+
+    #[test_case]
+    const TEST_account_address: TestType = TestType {
+        modname: "account",
+        name: "account_address",
+        f: account_address,
+    };
+
+    #[test_case]
+    const TEST_account_public_key: TestType = TestType {
+        modname: "account",
+        name: "account_public_key",
+        f: account_public_key,
+    };
+}

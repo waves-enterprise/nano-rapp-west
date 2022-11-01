@@ -1,5 +1,5 @@
 /// Transaction type
-#[derive(PartialEq)]
+#[derive(Clone, Copy, PartialEq)]
 pub enum Type {
     Issue = 3,
     Transfer = 4,
@@ -36,4 +36,41 @@ impl Type {
             _ => Type::Undefined,
         }
     }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    use nanos_sdk::TestType;
+
+    fn type_transfer() -> Result<(), ()> {
+        if Type::Transfer == Type::from_u8(4u8) {
+            Ok(())
+        } else {
+            Err(())
+        }
+    }
+
+    fn type_undefined() -> Result<(), ()> {
+        if Type::Undefined == Type::from_u8(42u8) {
+            Ok(())
+        } else {
+            Err(())
+        }
+    }
+
+    #[test_case]
+    const TEST_type_transfer: TestType = TestType {
+        modname: "type_id",
+        name: "type_transfer",
+        f: type_transfer,
+    };
+
+    #[test_case]
+    const TEST_type_undefined: TestType = TestType {
+        modname: "type_id",
+        name: "type_undefined",
+        f: type_undefined,
+    };
 }
