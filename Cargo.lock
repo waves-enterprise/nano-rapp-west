@@ -15,6 +15,15 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "2fff2a6927b3bb87f9595d67196a70493f627687a71d87a0d692242c33f58c11"
 
 [[package]]
+name = "nano-rapp-west"
+version = "0.2.0"
+dependencies = [
+ "nanos_sdk",
+ "nanos_ui",
+ "numtoa",
+]
+
+[[package]]
 name = "nanos_sdk"
 version = "0.2.0"
 source = "git+https://github.com/deadblackclover/ledger-nanos-sdk?branch=tests#b35f2b4abd0da0024afa05be0e4a0abe44c384db"
@@ -45,12 +54,3 @@ name = "numtoa"
 version = "0.2.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "6aa2c4e539b869820a2b82e1aef6ff40aa85e65decdd5185e83fb4b1249cd00f"
-
-[[package]]
-name = "rust-app"
-version = "0.2.0"
-dependencies = [
- "nanos_sdk",
- "nanos_ui",
- "numtoa",
-]
