@@ -2,6 +2,23 @@
 
 This is a Ledger devices wallet app for Waves Enterprise.
 
+This application uses the official libraries [ledger-nanos-sdk](https://github.com/LedgerHQ/ledger-nanos-sdk) and [ledger-nanos-ui](https://github.com/LedgerHQ/ledger-nanos-ui).
+
+### **!!!Important!!!**
+
+Forks of official libraries are used at the moment, since the official libraries have flaws. This application is under development. Please see the list of what has already been implemented and what remains to be implemented.
+
+- [x] Waves cryptography
+    - [x] Signing transactions
+- [ ] Transaction support (partially)
+- [ ] UI
+    - [ ] Menu
+    - [x] Transaction view
+- [ ] Tests
+    - [x] Unit tests
+    - [ ] Integration tests
+- [ ] Documentation
+
 ## Building
 
 ### Prerequisites
@@ -27,12 +44,12 @@ Other things you will need:
 - [Speculos](https://github.com/LedgerHQ/speculos) (make sure you add speculos.py to your PATH by running `export PATH=/path/to/speculos:$PATH`)
 - The correct target for rustc: `rustup target add thumbv6m-none-eabi`
 
-You can build on either Windows or Linux with a simple `cargo build` or `cargo build --release`.
+You can build on either Windows or Linux with a simple `cargo build-nanos`.
 It currently builds on stable.
 
 ## Loading
 
-You can use [cargo-ledger](https://github.com/LedgerHQ/cargo-ledger.git) which builds, outputs a `hex` file and a manifest file for `ledgerctl`, and loads it on a device in a single `cargo ledger load` command in your app directory.
+You can use [cargo-ledger](https://github.com/LedgerHQ/cargo-ledger.git) which builds, outputs a `hex` file and a manifest file for `ledgerctl`, and loads it on a device in a single `cargo ledger nanos --load` command in your app directory.
 
 Some options of the manifest file can be configured directly in `Cargo.toml` under a custom section:
 
@@ -41,12 +58,16 @@ Some options of the manifest file can be configured directly in `Cargo.toml` und
 curve = "secp256k1"
 flags = "0x40"
 icon = "btc.gif"
+icon_small = ""
+path = ""
 ```
 
 ## Testing
 
 One can for example use [speculos](https://github.com/LedgerHQ/speculos)
 
-`cargo run --release` defaults to running speculos on the generated binary with the appropriate flags, if `speculos.py` is in your `PATH`.
+`cargo run-nanos` defaults to running speculos on the generated binary with the appropriate flags, if `speculos.py` is in your `PATH`.
 
 There is a small test script that sends some of the available commands in `test/test_cmds.py`, or raw APDUs that can be used with `ledgerctl`.
+
+To run unit tests, use the `cargo test-nanos` command.
