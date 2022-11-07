@@ -5,12 +5,12 @@ authors = ["yhql"]
 edition = "2021"
 
 [dev-dependencies]
-nanos_sdk = { git = "https://github.com/deadblackclover/ledger-nanos-sdk", branch = "tests", features = ["speculos"] }
+nanos_sdk = { git = "https://github.com/waves-enterprise/ledger-nanos-sdk", branch = "fix_unit_tests", features = ["speculos"] }
 
 [dependencies]
 numtoa = "0.2.4"
-nanos_sdk = { git = "https://github.com/deadblackclover/ledger-nanos-sdk", branch = "tests" }
-nanos_ui = { git = "https://github.com/deadblackclover/ledger-nanos-ui", branch = "tests" }
+nanos_sdk = { git = "https://github.com/waves-enterprise/ledger-nanos-sdk", branch = "fix_unit_tests" }
+nanos_ui = { git = "https://github.com/waves-enterprise/ledger-nanos-ui", branch = "fix_unit_tests" }
 
 [profile.release]
 opt-level = 'z'
