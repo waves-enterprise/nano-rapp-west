@@ -1,5 +1,6 @@
 use nanos_sdk::buttons::{ButtonEvent, ButtonsState};
 use nanos_ui::bagls::*;
+use nanos_ui::layout::{Draw, Layout, Location, StringPlace};
 use nanos_ui::ui;
 
 pub struct TxScroller<'a> {
@@ -27,20 +28,22 @@ impl<'a> TxScroller<'a> {
             return;
         }
 
-        let top = LabelLine::new().dims(128, 11).pos(0, 12);
-        let bot = LabelLine::new().dims(128, 11).pos(0, 26);
-
         // A closure to draw common elements of the screen
         // cur_page passed as parameter to prevent borrowing
         let draw = |page: usize| {
-            top.text(self.titles[page]).display();
-            bot.text(self.messages[page]).paint();
+            ui::clear_screen();
+
+            [self.titles[page], self.messages[page]].place(
+                Location::Middle,
+                Layout::Centered,
+                false,
+            );
 
             if page > 0 {
-                LEFT_ARROW.paint();
+                LEFT_ARROW.display();
             }
             if page + 1 < page_count {
-                RIGHT_ARROW.paint();
+                RIGHT_ARROW.display();
             }
         };
 
@@ -49,10 +52,10 @@ impl<'a> TxScroller<'a> {
         loop {
             match ui::get_event(&mut buttons) {
                 Some(ButtonEvent::LeftButtonPress) => {
-                    LEFT_S_ARROW.paint();
+                    LEFT_S_ARROW.display();
                 }
                 Some(ButtonEvent::RightButtonPress) => {
-                    RIGHT_S_ARROW.paint();
+                    RIGHT_S_ARROW.display();
                 }
                 Some(ButtonEvent::LeftButtonRelease) => {
                     if cur_page > 0 {

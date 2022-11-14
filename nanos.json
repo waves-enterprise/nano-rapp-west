@@ -16,13 +16,15 @@
         "ld.lld": [
             "-Tnanos_layout.ld",
             "-Tlink.ld"
+        ],
+        "ld": [
+            "-Tnanos_layout.ld",
+            "-Tlink.ld"
         ]
     },
     "relocation-model": "ropi",
     "singlethread": true,
     "target-pointer-width": "32",
     "os": "nanos",
-    "target-family": [
-        "bolos"
-    ]
+    "target-family": [ "bolos" ]
 }
