@@ -67,24 +67,20 @@ fn sign_ui(message: &[u8]) -> Result<Option<([u8; 64], u32)>, SyscallError> {
         let mut buf = [0u8; 60];
         match transactions::create_messages_from_bytes(message, &mut buf) {
             Ok((titles, messages, length)) => {
-                TxScroller::new(&titles[..length], &messages[..length]).event_loop()
+                if TxScroller::new(&titles[..length], &messages[..length]).show() {
+                    let signature = Ed25519::new()
+                        .sign(message)
+                        .map_err(|_| SyscallError::Unspecified)?;
+                    return Ok(Some(signature));
+                } else {
+                    return Ok(None);
+                }
             }
             Err(_err) => {
                 ui::popup("Invalid transaction");
                 return Ok(None);
             }
         }
-    }
-
-    if ui::Validator::new("Sign ?").ask() {
-        let signature = Ed25519::new()
-            .sign(message)
-            .map_err(|_| SyscallError::Unspecified)?;
-        ui::popup("Done !");
-        Ok(Some(signature))
-    } else {
-        ui::popup("Cancelled");
-        Ok(None)
     }
 }
 
