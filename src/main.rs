@@ -14,48 +14,14 @@ use nanos_sdk::buttons::ButtonEvent;
 use nanos_sdk::ecc::Ed25519;
 use nanos_sdk::io;
 use nanos_sdk::io::SyscallError;
+use nanos_ui::bagls::*;
+use nanos_ui::layout::{Draw, Layout, Location, StringPlace};
+use nanos_ui::screen_util;
 use nanos_ui::ui;
 use transaction::account::PublicKeyAccount;
 use utils::tx_scroller::TxScroller;
 
 nanos_sdk::set_panic!(nanos_sdk::exiting_panic);
-
-/// Display public key in two separate
-/// message scrollers
-fn show_pubkey() {
-    let pubkey = Ed25519::new().public_key();
-    match pubkey {
-        Ok(value) => {
-            let pubkey_be = PublicKeyAccount::from_ed25519(value.as_ref());
-
-            let hex = utils::to_hex(pubkey_be.to_bytes()).unwrap();
-            let m = from_utf8(&hex).unwrap();
-            ui::MessageScroller::new(m).event_loop();
-        }
-        Err(_) => ui::popup("Error"),
-    }
-}
-
-/// Basic nested menu. Will be subject
-/// to simplifications in the future.
-#[allow(clippy::needless_borrow)]
-fn menu_example() {
-    loop {
-        match ui::Menu::new(&[&"PubKey", &"Infos", &"Back", &"Exit App"]).show() {
-            0 => show_pubkey(),
-            1 => loop {
-                match ui::Menu::new(&[&"Copyright", &"Authors", &"Back"]).show() {
-                    0 => ui::popup("2020 Ledger"),
-                    1 => ui::popup("???"),
-                    _ => break,
-                }
-            },
-            2 => return,
-            3 => nanos_sdk::exit_app(0),
-            _ => (),
-        }
-    }
-}
 
 /// This is the UI flow for signing, composed of a scroller
 /// to read the incoming message, a panel that requests user
@@ -91,14 +57,65 @@ extern "C" fn sample_main() {
     #[cfg(test)]
     test_main();
 
+    // Number of displayed pages
+    const PAGE_COUNT: usize = 3;
+    // Current page displayed
+    let mut cur_page = 0;
+
     loop {
-        // Draw some 'welcome' screen
-        ui::SingleMessage::new("W e l c o m e").show();
+        ui::clear_screen();
+
+        match cur_page {
+            0 => {
+                ["Application", "is ready"].place(Location::Middle, Layout::Centered, false);
+            }
+            1 => {
+                let version = env!("CARGO_PKG_VERSION");
+
+                "Version".place(Location::Top, Layout::Centered, true);
+                version.place(Location::Middle, Layout::Centered, false);
+            }
+            2 => {
+                "Quit".place(Location::Middle, Layout::Centered, true);
+            }
+            _ => (),
+        }
+
+        LEFT_ARROW.display();
+        RIGHT_ARROW.display();
+
+        screen_util::screen_update();
 
         // Wait for either a specific button push to exit the app
         // or an APDU command
         match comm.next_event() {
-            io::Event::Button(ButtonEvent::RightButtonRelease) => nanos_sdk::exit_app(0),
+            io::Event::Button(ButtonEvent::LeftButtonPress) => {
+                LEFT_S_ARROW.instant_display();
+            }
+            io::Event::Button(ButtonEvent::RightButtonPress) => {
+                RIGHT_S_ARROW.instant_display();
+            }
+            io::Event::Button(ButtonEvent::LeftButtonRelease) => {
+                if cur_page > 0 {
+                    cur_page -= 1;
+                } else {
+                    cur_page = PAGE_COUNT - 1;
+                }
+            }
+            io::Event::Button(ButtonEvent::RightButtonRelease) => {
+                if cur_page + 1 < PAGE_COUNT {
+                    cur_page += 1;
+                } else {
+                    cur_page = 0;
+                }
+            }
+            io::Event::Button(ButtonEvent::BothButtonsRelease) => {
+                // Selecting a menu item
+                match cur_page {
+                    2 => nanos_sdk::exit_app(0),
+                    _ => (),
+                }
+            }
             io::Event::Command(ins) => match handle_apdu(&mut comm, ins) {
                 Ok(()) => comm.reply_ok(),
                 Err(sw) => comm.reply(sw),
@@ -112,7 +129,6 @@ extern "C" fn sample_main() {
 enum Ins {
     GetPubkey,
     Sign,
-    Menu,
     Exit,
 }
 
@@ -121,7 +137,6 @@ impl From<u8> for Ins {
         match ins {
             2 => Ins::GetPubkey,
             3 => Ins::Sign,
-            4 => Ins::Menu,
             0xff => Ins::Exit,
             _ => panic!(),
         }
@@ -149,7 +164,6 @@ fn handle_apdu(comm: &mut io::Comm, ins: Ins) -> Result<(), Reply> {
                 comm.append(&signature_buf[..length as usize])
             }
         }
-        Ins::Menu => menu_example(),
         Ins::Exit => nanos_sdk::exit_app(0),
     }
     Ok(())
