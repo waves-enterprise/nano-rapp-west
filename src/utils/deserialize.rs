@@ -61,7 +61,7 @@ impl<'a> Buffer<'a> {
                 while count > 0 {
                     // TODO: parse key and value
                     buffer = skip_string(buffer);
-                    let (value, buf) = skip_value(buffer);
+                    let (_, buf) = skip_value(buffer);
                     buffer = buf;
                     count -= 1;
                 }
@@ -75,7 +75,7 @@ impl<'a> Buffer<'a> {
     }
 }
 
-fn get_byte<'a>(buffer: &'a [u8]) -> (u8, &'a [u8]) {
+fn get_byte(buffer: &[u8]) -> (u8, &[u8]) {
     match buffer.first() {
         Some(byte) => (*byte, &buffer[1..]),
         None => (0u8, buffer),
@@ -92,21 +92,21 @@ fn get_bytes<'a>(buffer: &'a [u8], value: &mut [u8], size: usize) -> &'a [u8] {
     }
 }
 
-fn get_u8<'a>(buffer: &'a [u8]) -> (usize, &'a [u8]) {
+fn get_u8(buffer: &[u8]) -> (usize, &[u8]) {
     let mut temp = [0u8; 1];
     let buffer = get_bytes(buffer, &mut temp, 1);
 
     (u8::from_be_bytes(temp) as usize, buffer)
 }
 
-fn get_u16<'a>(buffer: &'a [u8]) -> (usize, &'a [u8]) {
+fn get_u16(buffer: &[u8]) -> (usize, &[u8]) {
     let mut temp = [0u8; 2];
     let buffer = get_bytes(buffer, &mut temp, 2);
 
     (u16::from_be_bytes(temp) as usize, buffer)
 }
 
-fn get_u64<'a>(buffer: &'a [u8]) -> (u64, &'a [u8]) {
+fn get_u64(buffer: &[u8]) -> (u64, &[u8]) {
     let mut temp = [0u8; 8];
     let buffer = get_bytes(buffer, &mut temp, 8);
 
@@ -124,7 +124,7 @@ fn get_string<'a>(buffer: &'a [u8], value: &mut [u8]) -> &'a [u8] {
 }
 
 // TODO: may not be needed in the future
-fn skip_string<'a>(buffer: &'a [u8]) -> &'a [u8] {
+fn skip_string(buffer: &[u8]) -> &[u8] {
     let (length, buffer) = get_u16(buffer);
 
     if length > 0 {
@@ -136,7 +136,7 @@ fn skip_string<'a>(buffer: &'a [u8]) -> &'a [u8] {
 
 // TODO: change to get_value
 // TODO: may not be needed in the future
-fn skip_value<'a>(buffer: &'a [u8]) -> (DataEntry, &'a [u8]) {
+fn skip_value(buffer: &[u8]) -> (DataEntry, &[u8]) {
     let (byte, buffer) = get_byte(buffer);
 
     if byte == 0u8 {
@@ -155,11 +155,7 @@ fn skip_value<'a>(buffer: &'a [u8]) -> (DataEntry, &'a [u8]) {
 }
 
 fn to_bool(byte: u8) -> bool {
-    if byte == 1u8 {
-        true
-    } else {
-        false
-    }
+    byte == 1u8
 }
 
 #[cfg(test)]

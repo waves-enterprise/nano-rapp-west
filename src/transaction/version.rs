@@ -1,5 +1,5 @@
 /// Transaction version
-#[derive(Clone, Copy, PartialEq)]
+#[derive(Clone, Copy, Eq, PartialEq)]
 pub enum Version {
     V1 = 1,
     V2 = 2,

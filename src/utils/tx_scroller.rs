@@ -67,8 +67,6 @@ impl<'a> TxScroller<'a> {
 
         draw(cur_page);
 
-        let mut response = false;
-
         loop {
             match ui::get_event(&mut buttons) {
                 Some(ButtonEvent::LeftButtonPress) => {

@@ -1,8 +1,10 @@
+#![allow(clippy::all)]
 mod field;
 mod field_element_2625;
 
 use field::FieldElement;
 
+#[allow(non_snake_case)]
 pub fn ed25519_pk_to_curve25519(pk: [u8; 32]) -> [u8; 32] {
     let AY = FieldElement::from_bytes(&pk);
 

@@ -6,6 +6,7 @@ use core::str;
 use crate::transactions::*;
 use crate::{convert_numbers, impl_simple_test, single_screen};
 
+#[allow(dead_code)]
 pub struct Issue {
     type_id: Type,
     version: Version,
@@ -29,7 +30,7 @@ impl<'a> Transaction<'a> for Issue {
         let mut chain_id = 0_u8;
         let mut sender_public_key = [0u8; PUBLIC_KEY_LENGTH];
         let mut name = [0u8; 32];
-        let mut description = [0u8; 2000];
+        // let mut description = [0u8; 2000];
         let mut quantity = [0u8; 8];
         let mut decimals = 0_u8;
         let mut reissuable = false;
@@ -86,6 +87,8 @@ impl<'a> Transaction<'a> for Issue {
     }
 }
 
+// Example transaction for tests
+#[allow(dead_code)]
 const BYTES: [u8; 74] = [
     3, 2, 87, 30, 179, 95, 61, 75, 82, 107, 179, 157, 154, 213, 160, 129, 207, 205, 75, 153, 37,
     53, 128, 108, 244, 145, 136, 134, 145, 43, 17, 46, 65, 200, 8, 0, 4, 84, 101, 115, 116, 0, 4,

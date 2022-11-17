@@ -1,5 +1,4 @@
 use crate::transaction::account::{PublicKeyAccount, PUBLIC_KEY_LENGTH};
-use crate::transaction::hash::{Hash, HASH_LENGTH};
 use crate::utils;
 
 use core::str;
@@ -7,6 +6,7 @@ use core::str;
 use crate::transactions::*;
 use crate::{convert_numbers, single_screen};
 
+#[allow(dead_code)]
 pub struct CreateContract {
     type_id: Type,
     version: Version,
@@ -25,9 +25,9 @@ impl<'a> Transaction<'a> for CreateContract {
         let mut type_id = 0_u8;
         let mut version = 0_u8;
         let mut sender_public_key = [0u8; PUBLIC_KEY_LENGTH];
-        let mut image = [0u8; 600];
-        let mut image_hash = [0u8; HASH_LENGTH];
-        let mut contract_name = [0u8; 600];
+        // let mut image = [0u8; 600];
+        // let mut image_hash = [0u8; HASH_LENGTH];
+        // let mut contract_name = [0u8; 600];
         let mut fee = [0u8; 8];
         let mut timestamp = [0u8; 8];
 

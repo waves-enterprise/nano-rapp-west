@@ -2,31 +2,12 @@ pub mod deserialize;
 pub mod macros;
 pub mod tx_scroller;
 
-use core::char;
 use numtoa::NumToA;
-
-/// Convert to hex. Returns a static buffer of 64 bytes
-#[inline]
-pub fn to_hex(m: &[u8]) -> Result<[u8; 64], ()> {
-    if 2 * m.len() > 64 {
-        return Err(());
-    }
-    let mut hex = [0u8; 64];
-    let mut i = 0;
-    for c in m {
-        let c0 = char::from_digit((c >> 4).into(), 16).unwrap();
-        let c1 = char::from_digit((c & 0xf).into(), 16).unwrap();
-        hex[i] = c0 as u8;
-        hex[i + 1] = c1 as u8;
-        i += 2;
-    }
-    Ok(hex)
-}
 
 /// Fills the general buffer with all values
 /// Converting numbers to a formatted bytes
 /// Transfer bytes from the temp buffer to the general buffer
-pub fn add_number_to_buf<'a>(value: u64, offset: usize, buf: &'a mut [u8]) -> usize {
+pub fn add_number_to_buf(value: u64, offset: usize, buf: &mut [u8]) -> usize {
     // Temporary buffer for numtoa
     let mut buffer = [0u8; 20];
     // Get the formatted amount
@@ -40,7 +21,7 @@ pub fn add_number_to_buf<'a>(value: u64, offset: usize, buf: &'a mut [u8]) -> us
 const DECIMALS: u64 = 100000000;
 
 /// Converting numbers to a formatted bytes
-fn number_to_formatted_bytes<'a>(number: u64, buf: &'a mut [u8]) -> ([u8; 20], usize) {
+fn number_to_formatted_bytes(number: u64, buf: &mut [u8]) -> ([u8; 20], usize) {
     let mut buffer = [0u8; 20];
     #[allow(unused_assignments)]
     let mut cursor = 0;

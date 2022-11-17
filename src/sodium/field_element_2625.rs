@@ -1,3 +1,4 @@
+#![allow(clippy::all)]
 use core::ops::{Add, AddAssign};
 use core::ops::{Mul, MulAssign};
 use core::ops::{Sub, SubAssign};

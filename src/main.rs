@@ -9,7 +9,6 @@ mod transaction;
 mod transactions;
 mod utils;
 
-use core::str::from_utf8;
 use nanos_sdk::buttons::ButtonEvent;
 use nanos_sdk::ecc::Ed25519;
 use nanos_sdk::io;
@@ -37,15 +36,12 @@ fn sign_ui(message: &[u8]) -> Result<Option<([u8; 64], u32)>, SyscallError> {
                     let signature = Ed25519::new()
                         .sign(message)
                         .map_err(|_| SyscallError::Unspecified)?;
-                    return Ok(Some(signature));
+                    Ok(Some(signature))
                 } else {
-                    return Ok(None);
+                    Ok(None)
                 }
             }
-            Err(_err) => {
-                ui::popup("Invalid transaction");
-                return Ok(None);
-            }
+            Err(_err) => Ok(None),
         }
     }
 }
@@ -112,6 +108,8 @@ extern "C" fn sample_main() {
             io::Event::Button(ButtonEvent::BothButtonsRelease) => {
                 // Selecting a menu item
                 match cur_page {
+                    0 => (),
+                    1 => (),
                     2 => nanos_sdk::exit_app(0),
                     _ => (),
                 }

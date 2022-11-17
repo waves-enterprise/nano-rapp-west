@@ -1,3 +1,4 @@
+#![allow(clippy::all)]
 use crate::sodium::field_element_2625::FieldElement2625;
 
 pub type FieldElement = FieldElement2625;
