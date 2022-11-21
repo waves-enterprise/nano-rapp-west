@@ -5,7 +5,7 @@ use crate::utils;
 use core::str;
 
 use crate::transactions::*;
-use crate::{convert_numbers, impl_simple_test, single_screen};
+use crate::{convert_numbers, impl_transactions_test, single_screen};
 
 #[allow(dead_code)]
 pub struct Reissue {
@@ -93,4 +93,4 @@ const BYTES: [u8; 92] = [
     180, 2, 72,
 ];
 
-impl_simple_test!(Reissue, Type::Reissue, Version::V2, 100000000);
+impl_transactions_test!(Reissue, Type::Reissue, Version::V2, 100000000);

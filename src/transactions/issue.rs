@@ -4,7 +4,7 @@ use crate::utils;
 use core::str;
 
 use crate::transactions::*;
-use crate::{convert_numbers, impl_simple_test, single_screen};
+use crate::{convert_numbers, impl_transactions_test, single_screen};
 
 #[allow(dead_code)]
 pub struct Issue {
@@ -96,4 +96,4 @@ const BYTES: [u8; 74] = [
     180, 2, 72, 0,
 ];
 
-impl_simple_test!(Issue, Type::Issue, Version::V2, 100000000);
+impl_transactions_test!(Issue, Type::Issue, Version::V2, 100000000);

@@ -5,7 +5,7 @@ use crate::utils;
 use core::str;
 
 use crate::transactions::*;
-use crate::{convert_numbers, hash_screen, impl_simple_test, single_screen};
+use crate::{convert_numbers, hash_screen, impl_transactions_test, single_screen};
 
 #[allow(dead_code)]
 pub struct Transfer {
@@ -103,4 +103,4 @@ const BYTES: [u8; 141] = [
     206, 90, 191, 69, 182, 4, 4, 120, 236, 31, 54,
 ];
 
-impl_simple_test!(Transfer, Type::Transfer, Version::V2, 1000000);
+impl_transactions_test!(Transfer, Type::Transfer, Version::V2, 1000000);

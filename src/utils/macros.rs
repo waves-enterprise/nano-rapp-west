@@ -63,7 +63,7 @@ macro_rules! convert_numbers {
 }
 
 #[macro_export]
-macro_rules! impl_simple_test {
+macro_rules! impl_transactions_test {
     ($tx:ident, $type_id:expr, $version:expr, $fee:expr) => {
         #[cfg(test)]
         impl $tx {
