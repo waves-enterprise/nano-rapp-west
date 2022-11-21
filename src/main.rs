@@ -127,6 +127,8 @@ extern "C" fn sample_main() {
 enum Ins {
     GetPubkey,
     Sign,
+    GetVersion,
+    GetName,
     Exit,
 }
 
@@ -135,6 +137,8 @@ impl From<u8> for Ins {
         match ins {
             2 => Ins::GetPubkey,
             3 => Ins::Sign,
+            6 => Ins::GetVersion,
+            8 => Ins::GetName,
             0xff => Ins::Exit,
             _ => panic!(),
         }
@@ -162,6 +166,13 @@ fn handle_apdu(comm: &mut io::Comm, ins: Ins) -> Result<(), Reply> {
                 comm.append(&signature_buf[..length as usize])
             }
         }
+        Ins::GetVersion => {
+            let version_major = env!("CARGO_PKG_VERSION_MAJOR").parse::<u8>().unwrap();
+            let version_minor = env!("CARGO_PKG_VERSION_MINOR").parse::<u8>().unwrap();
+            let version_patch = env!("CARGO_PKG_VERSION_PATCH").parse::<u8>().unwrap();
+            comm.append([version_major, version_minor, version_patch].as_slice())
+        }
+        Ins::GetName => comm.append(b"Waves Enterprise"),
         Ins::Exit => nanos_sdk::exit_app(0),
     }
     Ok(())
