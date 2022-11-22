@@ -18,7 +18,7 @@ use nanos_ui::layout::{Draw, Layout, Location, StringPlace};
 use nanos_ui::screen_util;
 use nanos_ui::ui;
 use transaction::account::PublicKeyAccount;
-use utils::tx_scroller::TxScroller;
+use utils::horizontal_validator::HorizontalValidator;
 
 nanos_sdk::set_panic!(nanos_sdk::exiting_panic);
 
@@ -32,7 +32,7 @@ fn sign_ui(message: &[u8]) -> Result<Option<([u8; 64], u32)>, SyscallError> {
         let mut buf = [0u8; 60];
         match transactions::create_messages_from_bytes(message, &mut buf) {
             Ok((titles, messages, length)) => {
-                if TxScroller::new(&titles[..length], &messages[..length]).show() {
+                if HorizontalValidator::new(&titles[..length], &messages[..length]).ask() {
                     let signature = Ed25519::new()
                         .sign(message)
                         .map_err(|_| SyscallError::Unspecified)?;

@@ -1,6 +1,6 @@
 pub mod deserialize;
+pub mod horizontal_validator;
 pub mod macros;
-pub mod tx_scroller;
 
 use numtoa::NumToA;
 

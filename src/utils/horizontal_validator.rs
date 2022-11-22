@@ -4,17 +4,17 @@ use nanos_ui::layout::{Draw, Layout, Location, StringPlace};
 use nanos_ui::screen_util;
 use nanos_ui::ui;
 
-pub struct TxScroller<'a> {
+pub struct HorizontalValidator<'a> {
     titles: &'a [&'a str],
     messages: &'a [&'a str],
 }
 
-impl<'a> TxScroller<'a> {
+impl<'a> HorizontalValidator<'a> {
     pub fn new(titles: &'a [&'a str], messages: &'a [&'a str]) -> Self {
-        TxScroller { titles, messages }
+        HorizontalValidator { titles, messages }
     }
 
-    pub fn show(&self) -> bool {
+    pub fn ask(&self) -> bool {
         let mut buttons = ButtonsState::new();
         let mut cur_page = 0;
 
