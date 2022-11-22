@@ -1,3 +1,4 @@
+pub mod crypto;
 pub mod deserialize;
 pub mod horizontal_validator;
 pub mod macros;
