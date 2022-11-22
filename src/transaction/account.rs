@@ -1,7 +1,12 @@
+use smol_base_x::{Base, Base58Btc};
+
 use crate::sodium;
+use crate::utils::crypto::secure_hash;
 
 pub const ADDRESS_LENGTH: usize = 26;
 pub const PUBLIC_KEY_LENGTH: usize = 32;
+
+const ADDRESS_VERSION: u8 = 1;
 
 /// An account possessing a address.
 pub struct Address([u8; ADDRESS_LENGTH]);
@@ -11,12 +16,13 @@ impl Address {
         Address(bytes)
     }
 
-    pub fn to_bytes(&self) -> &[u8; ADDRESS_LENGTH] {
-        &self.0
+    pub fn to_base58(&self, out: &mut [u8]) {
+        Base58Btc::encode_mut(self.0, out).expect("should've been fine...");
     }
 }
 
 /// An account possessing a public key.
+#[derive(Clone)]
 pub struct PublicKeyAccount([u8; PUBLIC_KEY_LENGTH]);
 
 impl PublicKeyAccount {
@@ -31,10 +37,6 @@ impl PublicKeyAccount {
         let result = sodium::ed25519_pk_to_curve25519(public_key_be);
 
         PublicKeyAccount(result)
-    }
-
-    pub fn to_bytes(&self) -> &[u8; PUBLIC_KEY_LENGTH] {
-        &self.0
     }
 
     // Converts little endian 65 byte (0x4 32X 32Y)
@@ -52,6 +54,28 @@ impl PublicKeyAccount {
         }
 
         public_key_be
+    }
+
+    pub fn to_bytes(&self) -> &[u8; PUBLIC_KEY_LENGTH] {
+        &self.0
+    }
+
+    pub fn to_address(&mut self, chain_id: u8) -> Address {
+        let mut buf = [0u8; ADDRESS_LENGTH];
+        buf[0] = ADDRESS_VERSION;
+        buf[1] = chain_id;
+
+        let mut public_key_hash = [0u8; 32];
+        secure_hash(&mut self.0, 32, &mut public_key_hash);
+
+        buf[2..22].clone_from_slice(&public_key_hash[..20]);
+
+        let mut checksum = [0u8; 32];
+        secure_hash(&mut buf[..22], 22, &mut checksum);
+
+        buf[22..].clone_from_slice(&checksum[..4]);
+
+        Address::new(buf)
     }
 }
 

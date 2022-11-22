@@ -8,9 +8,10 @@ edition = "2021"
 nanos_sdk = { git = "https://github.com/LedgerHQ/ledger-nanos-sdk", features = ["speculos"] }
 
 [dependencies]
-numtoa = "0.2.4"
 nanos_sdk = { git = "https://github.com/LedgerHQ/ledger-nanos-sdk" }
 nanos_ui = { git = "https://github.com/LedgerHQ/ledger-nanos-ui" }
+numtoa = "0.2.4"
+smol-base-x = "0.1.0"
 
 [profile.release]
 opt-level = 'z'

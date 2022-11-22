@@ -46,6 +46,7 @@ dependencies = [
  "nanos_sdk",
  "nanos_ui",
  "numtoa",
+ "smol-base-x",
 ]
 
 [[package]]
@@ -105,6 +106,12 @@ name = "rand_core"
 version = "0.6.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "ec0be4795e2f6a28069bec0b5ff3e2ac9bafc99e6a9a7dc3547996c5c816922c"
+
+[[package]]
+name = "smol-base-x"
+version = "0.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "8f68701fd24b0b12c6b8f78db1b59c73586105e6cde164e4546f1a109d86c16b"
 
 [[package]]
 name = "syn"
