@@ -39,7 +39,7 @@ impl<'a> Transaction<'a> for Issue {
             .get_byte(&mut version)
             .get_byte(&mut chain_id)
             .get_bytes(&mut sender_public_key, PUBLIC_KEY_LENGTH)
-            .skip_string() // .get_string(&mut name)
+            .skip_string()
             .skip_string()
             .get_bytes(&mut quantity, 8)
             .get_byte(&mut decimals)
