@@ -1,11 +1,12 @@
 use crate::transaction::account::{PublicKeyAccount, PUBLIC_KEY_LENGTH};
 use crate::transaction::hash::{Asset, Hash, HASH_LENGTH};
-use crate::utils;
+use crate::utils::horizontal_validator::{HorizontalValidator, TypeValidator};
+use crate::utils::number_to_formatted_bytes;
 
 use core::str;
 
 use crate::transactions::*;
-use crate::{convert_numbers, impl_transactions_test, single_screen};
+use crate::{convert_number_to_str, impl_transactions_test, single_screen};
 
 #[allow(dead_code)]
 pub struct Reissue {
@@ -60,26 +61,27 @@ impl<'a> Transaction<'a> for Reissue {
         }
     }
 
-    fn to_messages(&self, buf: &'a mut [u8]) -> ([&'a str; MAX_SIZE], [&'a str; MAX_SIZE], usize) {
+    fn ask(&self) -> bool {
         let mut titles = [""; MAX_SIZE];
         let mut messages = [""; MAX_SIZE];
-
         let mut cursor: usize = 0;
 
-        // Convert all the numbers
-        let fee: &str;
-        convert_numbers!([self.fee], [fee], buf);
+        // Temporary buffer to convert number to string
+        let mut temp = [0u8; 20];
 
-        // Name tx
+        // Transaction type
         single_screen!("Review", "reissue", cursor, titles, messages);
 
         // Fee
+        let fee: &str;
+        convert_number_to_str!(self.fee, fee, temp);
         single_screen!("Fee", fee, cursor, titles, messages);
 
         // Fee asset
         single_screen!("Fee asset", "WEST", cursor, titles, messages);
 
-        (titles, messages, cursor)
+        // Run the show and get an answer
+        HorizontalValidator::new(&titles[..cursor], &messages[..cursor], TypeValidator::Sign).ask()
     }
 }
 

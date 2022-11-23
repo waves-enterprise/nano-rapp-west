@@ -29,36 +29,13 @@ macro_rules! hash_screen {
     };
 }
 
-/// Convert all the numbers from the transaction into strings
-/// needed to display them on the screen
+/// Converts a number from a transaction into the string
+/// needed to display it on the screen
 #[macro_export]
-macro_rules! convert_numbers {
-    ([$($value:expr),+], [$($variable:ident),+], $buf: ident) => {
-        let mut sizes = [0; 4];
-        let mut offset = 0;
-        let mut position = 0;
-
-        $(
-            #[allow(unused_assignments)]
-            {
-                let value_size = utils::add_number_to_buf($value, offset, $buf);
-                offset += value_size;
-                sizes[position] = value_size;
-                position += 1;
-            }
-        )+
-
-        offset = 0;
-        position = 0;
-
-        $(
-            #[allow(unused_assignments)]
-            {
-                $variable = unsafe { str::from_utf8_unchecked(&$buf[offset..offset + sizes[position]]) };
-                offset += sizes[position];
-                position += 1;
-            }
-        )+
+macro_rules! convert_number_to_str {
+    ($value: expr, $variable: ident, $buf: ident) => {
+        let (buf, buf_size) = number_to_formatted_bytes($value, &mut $buf);
+        $variable = unsafe { str::from_utf8_unchecked(&buf[..buf_size]) };
     };
 }
 

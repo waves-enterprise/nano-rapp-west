@@ -5,24 +5,10 @@ pub mod macros;
 
 use numtoa::NumToA;
 
-/// Fills the general buffer with all values
-/// Converting numbers to a formatted bytes
-/// Transfer bytes from the temp buffer to the general buffer
-pub fn add_number_to_buf(value: u64, offset: usize, buf: &mut [u8]) -> usize {
-    // Temporary buffer for numtoa
-    let mut buffer = [0u8; 20];
-    // Get the formatted amount
-    let (value_bytes, value_size) = number_to_formatted_bytes(value, &mut buffer);
-    // Transfer all amounts from the temp buffer to the general buffer
-    buf[offset..offset + value_size].clone_from_slice(&value_bytes[..value_size]);
-    // Return bytes size
-    value_size
-}
-
 const DECIMALS: u64 = 100000000;
 
 /// Converting numbers to a formatted bytes
-fn number_to_formatted_bytes(number: u64, buf: &mut [u8]) -> ([u8; 20], usize) {
+pub fn number_to_formatted_bytes(number: u64, buf: &mut [u8]) -> ([u8; 20], usize) {
     let mut buffer = [0u8; 20];
     #[allow(unused_assignments)]
     let mut cursor = 0;

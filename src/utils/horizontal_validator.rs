@@ -4,14 +4,24 @@ use nanos_ui::layout::{Draw, Layout, Location, StringPlace};
 use nanos_ui::screen_util;
 use nanos_ui::ui;
 
+pub enum TypeValidator {
+    Sign,
+    Verify,
+}
+
 pub struct HorizontalValidator<'a> {
     titles: &'a [&'a str],
     messages: &'a [&'a str],
+    type_: TypeValidator,
 }
 
 impl<'a> HorizontalValidator<'a> {
-    pub fn new(titles: &'a [&'a str], messages: &'a [&'a str]) -> Self {
-        HorizontalValidator { titles, messages }
+    pub fn new(titles: &'a [&'a str], messages: &'a [&'a str], type_: TypeValidator) -> Self {
+        HorizontalValidator {
+            titles,
+            messages,
+            type_,
+        }
     }
 
     pub fn ask(&self) -> bool {
@@ -43,7 +53,15 @@ impl<'a> HorizontalValidator<'a> {
             } else if page == page_count {
                 // Confirmation of transaction signing
                 CHECKMARK_ICON.display();
-                ["Accept", "and send"].place(Location::Middle, Layout::Centered, true)
+
+                match self.type_ {
+                    TypeValidator::Sign => {
+                        ["Accept", "and send"].place(Location::Middle, Layout::Centered, true);
+                    }
+                    TypeValidator::Verify => {
+                        ["Approve"].place(Location::Middle, Layout::Centered, true);
+                    }
+                }
             } else if page == page_count + 1 {
                 // Cancel the signing of a transaction
                 CROSS_ICON.display();

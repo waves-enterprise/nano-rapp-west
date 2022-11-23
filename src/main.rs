@@ -18,7 +18,6 @@ use nanos_ui::layout::{Draw, Layout, Location, StringPlace};
 use nanos_ui::screen_util;
 use nanos_ui::ui;
 use transaction::account::PublicKeyAccount;
-use utils::horizontal_validator::HorizontalValidator;
 
 nanos_sdk::set_panic!(nanos_sdk::exiting_panic);
 
@@ -27,21 +26,15 @@ nanos_sdk::set_panic!(nanos_sdk::exiting_panic);
 /// validation, and an exit message.
 fn sign_ui(message: &[u8]) -> Result<Option<([u8; 64], u32)>, SyscallError> {
     {
-        // This buffer is intended for storing all amounts
-        // and should live all the time until everything is displayed
-        let mut buf = [0u8; 60];
-        match transactions::create_messages_from_bytes(message, &mut buf) {
-            Ok((titles, messages, length)) => {
-                if HorizontalValidator::new(&titles[..length], &messages[..length]).ask() {
-                    let signature = Ed25519::new()
-                        .sign(message)
-                        .map_err(|_| SyscallError::Unspecified)?;
-                    Ok(Some(signature))
-                } else {
-                    Ok(None)
-                }
+        match transactions::ask(message) {
+            Ok(true) => {
+                let signature = Ed25519::new()
+                    .sign(message)
+                    .map_err(|_| SyscallError::Unspecified)?;
+                Ok(Some(signature))
             }
-            Err(_err) => Ok(None),
+            Ok(false) => Ok(None),
+            Err(_) => Ok(None),
         }
     }
 }

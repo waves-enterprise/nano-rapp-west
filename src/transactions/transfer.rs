@@ -1,11 +1,12 @@
 use crate::transaction::account::{Address, PublicKeyAccount, PUBLIC_KEY_LENGTH};
 use crate::transaction::hash::{Asset, Hash, HASH_LENGTH};
-use crate::utils;
+use crate::utils::horizontal_validator::{HorizontalValidator, TypeValidator};
+use crate::utils::number_to_formatted_bytes;
 
 use core::str;
 
 use crate::transactions::*;
-use crate::{convert_numbers, hash_screen, impl_transactions_test, single_screen};
+use crate::{convert_number_to_str, hash_screen, impl_transactions_test, single_screen};
 
 #[allow(dead_code)]
 pub struct Transfer {
@@ -61,33 +62,35 @@ impl<'a> Transaction<'a> for Transfer {
         }
     }
 
-    fn to_messages(&self, buf: &'a mut [u8]) -> ([&'a str; MAX_SIZE], [&'a str; MAX_SIZE], usize) {
+    fn ask(&self) -> bool {
         let mut titles = [""; MAX_SIZE];
         let mut messages = [""; MAX_SIZE];
-
         let mut cursor: usize = 0;
 
-        // Convert all the numbers
-        let amount: &str;
-        let fee: &str;
-        convert_numbers!([self.amount, self.fee], [amount, fee], buf);
+        // Temporary buffer to convert number to string
+        let mut temp = [0u8; 20];
 
-        // Name tx
+        // Transaction type
         single_screen!("Review", "transfer", cursor, titles, messages);
 
         // Amount
+        let amount: &str;
+        convert_number_to_str!(self.amount, amount, temp);
         single_screen!("Amount", amount, cursor, titles, messages);
 
         // Asset
         hash_screen!("Asset", &self.asset, cursor, titles, messages);
 
         // Fee
+        let fee: &str;
+        convert_number_to_str!(self.fee, fee, temp);
         single_screen!("Fee", fee, cursor, titles, messages);
 
         // Fee asset
         hash_screen!("Fee asset", &self.fee_asset, cursor, titles, messages);
 
-        (titles, messages, cursor)
+        // Run the show and get an answer
+        HorizontalValidator::new(&titles[..cursor], &messages[..cursor], TypeValidator::Sign).ask()
     }
 }
 
