@@ -16,8 +16,8 @@ impl Address {
         Address(bytes)
     }
 
-    pub fn to_base58(&self, out: &mut [u8]) {
-        Base58Btc::encode_mut(self.0, out).expect("should've been fine...");
+    pub fn to_base58(&self, buf: &mut [u8]) {
+        Base58Btc::encode_mut(self.0, buf).unwrap();
     }
 }
 
