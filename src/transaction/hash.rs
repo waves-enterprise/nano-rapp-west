@@ -1,3 +1,5 @@
+use smol_base_x::{Base, Base58Btc};
+
 pub const HASH_LENGTH: usize = 32;
 
 pub type TransactionId = Hash;
@@ -27,8 +29,13 @@ impl Hash {
         true
     }
 
+    #[allow(dead_code)]
     pub fn to_bytes(&self) -> [u8; HASH_LENGTH] {
         self.0
+    }
+
+    pub fn to_base58(&self, buf: &mut [u8]) {
+        Base58Btc::encode_mut(self.0, buf).unwrap();
     }
 
     /// Converts to an Asset

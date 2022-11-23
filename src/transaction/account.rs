@@ -16,6 +16,11 @@ impl Address {
         Address(bytes)
     }
 
+    #[allow(dead_code)]
+    pub fn to_bytes(&self) -> &[u8; ADDRESS_LENGTH] {
+        &self.0
+    }
+
     pub fn to_base58(&self, buf: &mut [u8]) {
         Base58Btc::encode_mut(self.0, buf).unwrap();
     }
