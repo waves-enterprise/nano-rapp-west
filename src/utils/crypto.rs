@@ -1,6 +1,6 @@
 use nanos_sdk::bindings::*;
 
-pub fn blake2b_256(msg: &mut [u8], msg_len: u32, out: &mut [u8]) {
+fn blake2b_256(msg: &mut [u8], msg_len: u32, out: &mut [u8]) {
     let mut ctx: cx_blake2b_t = cx_blake2b_s::default();
 
     unsafe {
@@ -17,7 +17,7 @@ pub fn blake2b_256(msg: &mut [u8], msg_len: u32, out: &mut [u8]) {
     }
 }
 
-pub fn keccak_256(msg: &mut [u8], msg_len: u32, out: &mut [u8]) {
+fn keccak_256(msg: &mut [u8], msg_len: u32, out: &mut [u8]) {
     let mut ctx: cx_sha3_t = cx_sha3_s::default();
 
     unsafe {
