@@ -129,8 +129,8 @@ enum Ins {
 impl From<u8> for Ins {
     fn from(ins: u8) -> Ins {
         match ins {
-            2 => Ins::GetPubkey,
-            3 => Ins::Sign,
+            2 => Ins::Sign,
+            4 => Ins::GetPubkey,
             6 => Ins::GetVersion,
             8 => Ins::GetName,
             0xff => Ins::Exit,
@@ -147,6 +147,12 @@ fn handle_apdu(comm: &mut io::Comm, ins: Ins) -> Result<(), Reply> {
     }
 
     match ins {
+        Ins::Sign => {
+            let out = sign_ui(comm.get_data()?)?;
+            if let Some((signature_buf, length)) = out {
+                comm.append(&signature_buf[..length as usize])
+            }
+        }
         Ins::GetPubkey => {
             let pk = Ed25519::new()
                 .public_key()
@@ -170,12 +176,6 @@ fn handle_apdu(comm: &mut io::Comm, ins: Ins) -> Result<(), Reply> {
                 }
             } else {
                 comm.append(&result);
-            }
-        }
-        Ins::Sign => {
-            let out = sign_ui(comm.get_data()?)?;
-            if let Some((signature_buf, length)) = out {
-                comm.append(&signature_buf[..length as usize])
             }
         }
         Ins::GetVersion => {
