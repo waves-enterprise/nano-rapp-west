@@ -9,10 +9,31 @@ macro_rules! single_screen {
     };
 }
 
+#[macro_export]
+macro_rules! address_screen {
+    ($address: expr, $cursor: ident, $titles: ident, $messages: ident) => {
+        let a1 = unsafe { str::from_utf8_unchecked(&$address[0..16]) };
+        let a2 = unsafe { str::from_utf8_unchecked(&$address[16..32]) };
+        let a3 = unsafe { str::from_utf8_unchecked(&$address[32..]) };
+
+        $cursor += 1;
+        $titles[$cursor - 1..$cursor].clone_from_slice(&["Address (1/3)"]);
+        $messages[$cursor - 1..$cursor].clone_from_slice(&[&a1]);
+
+        $cursor += 1;
+        $titles[$cursor - 1..$cursor].clone_from_slice(&["Address (2/3)"]);
+        $messages[$cursor - 1..$cursor].clone_from_slice(&[&a2]);
+
+        $cursor += 1;
+        $titles[$cursor - 1..$cursor].clone_from_slice(&["Address (3/3)"]);
+        $messages[$cursor - 1..$cursor].clone_from_slice(&[&a3]);
+    };
+}
+
 /// Creating a screen or screens for hashes
 #[macro_export]
 macro_rules! hash_screen {
-    ($title: expr, $hash:expr, $cursor: ident, $titles: ident, $messages: ident) => {
+    ($title: expr, $hash: expr, $cursor: ident, $titles: ident, $messages: ident) => {
         match $hash {
             Some(_hash) => {
                 // TODO: Display hash
@@ -41,7 +62,7 @@ macro_rules! convert_number_to_str {
 
 #[macro_export]
 macro_rules! impl_transactions_test {
-    ($tx:ident, $type_id:expr, $version:expr, $fee:expr) => {
+    ($tx: ident, $type_id: expr, $version: expr, $fee: expr) => {
         #[cfg(test)]
         impl $tx {
             pub fn get_type_id(&self) -> Type {

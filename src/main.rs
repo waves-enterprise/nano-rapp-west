@@ -4,6 +4,7 @@
 #![test_runner(nanos_sdk::sdk_test_runner)]
 #![reexport_test_harness_main = "test_main"]
 
+mod internal_ui;
 mod sodium;
 mod transaction;
 mod transactions;
@@ -151,7 +152,25 @@ fn handle_apdu(comm: &mut io::Comm, ins: Ins) -> Result<(), Reply> {
                 .public_key()
                 .map_err(|x| Reply(0x6eu16 | (x as u16 & 0xff)))?;
             let pk_be = PublicKeyAccount::from_ed25519(pk.as_ref());
-            comm.append(pk_be.to_bytes());
+
+            let chain_id = comm.get_p2();
+
+            let mut address = [0u8; 36];
+            pk_be.clone().to_address(chain_id).to_base58(&mut address);
+
+            let mut result = [0u8; 67];
+            result[..32].clone_from_slice(pk_be.to_bytes());
+            result[32..].clone_from_slice(&address[..35]);
+
+            if comm.get_p1() == 1u8 {
+                if internal_ui::verify_address(&mut address) {
+                    comm.append(&result);
+                } else {
+                    return Err(io::StatusWords::UserCancelled.into());
+                }
+            } else {
+                comm.append(&result);
+            }
         }
         Ins::Sign => {
             let out = sign_ui(comm.get_data()?)?;
