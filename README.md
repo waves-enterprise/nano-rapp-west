@@ -68,6 +68,8 @@ One can for example use [speculos](https://github.com/LedgerHQ/speculos)
 
 `cargo run-nanos` defaults to running speculos on the generated binary with the appropriate flags, if `speculos.py` is in your `PATH`.
 
-There is a small test script that sends some of the available commands in `test/test_cmds.py`, or raw APDUs that can be used with `ledgerctl`.
+There is a test script that sends some of the available commands in `test/test_cmds.py`. For the script to work correctly, you must install the python dependencies with the command `pip3 install -r test/requirements.txt`.
+
+There are also raw APDUs that can be used with `ledgerctl`.
 
 To run unit tests, use the `cargo test-nanos` command.
