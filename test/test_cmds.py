@@ -1,81 +1,19 @@
 import base58
 import pywaves as pw
-import struct
+import pywaves.crypto as crypto
 
-from ledgerblue.commTCP import getDongle as getDongleTCP
-from ledgerblue.comm import getDongle
-
-from random import getrandbits as rnd
 from binascii import hexlify, unhexlify
 
-from time import sleep
-
-d = getDongleTCP(port=9999)     # Speculos
-# d = getDongle()               # Nano
-
-def exchange_raw(ins):
-    response = None
-    cmd = unhexlify(ins)
-    try:
-        response = d.exchange(cmd, 20)
-        sleep(1)
-    except Exception as e:
-        print(e)
-    if response is not None:
-        return response
-
-def get_pubkey(chain_id):
-    """Sends APDU GetPubkey instructions
-
-    Returns
-    -------
-    bytes, bytes
-        Returns pub_key and address bytes of the application
-    """
-    chain_id_hex = hexlify(chain_id.encode("ascii"))
-
-    response = exchange_raw("800400" + str(chain_id_hex)[2:-1])
-
-    pub_key: bytes = response[0:32]
-    address: bytes = response[32:67]
-
-    return pub_key, address
-
-def get_app_version():
-    """Sends APDU GetVersion instructions
-
-    Returns
-    -------
-    int, int, int
-        Returns major, minor, patch version of the application
-    """
-    response = exchange_raw("8006")
-
-    # response = MAJOR (1) || MINOR (1) || PATCH (1)
-    assert len(response) == 3
-
-    major, minor, patch = struct.unpack(
-        "BBB",
-        response
-    )  # type: int, int, int
-
-    return major, minor, patch
-
-def get_app_name():
-    """Sends APDU GetName instructions
-
-    Returns
-    -------
-    string
-        Returns the name of the application
-    """
-    response = exchange_raw("8008")
-    return response.decode("ascii")
-
-# TESTS
+from client import *
 
 def test_sign():
     pub_key, address = get_pubkey("V")
+
+    p = str(hexlify(pub_key))[2:-1]
+
+    raw_tx = "0402" + p + "00000000017410b402480000000005f5e10000000000000f4240015640b2ca70820baa3b850bf743ec6c52c79de228e3ff05fb95003502b1da5efa1ed189c4f5c21e17256e2de99186b42cb47d3f7d3cb73201586de784ebf6fa269a7f2268ccce5abf45b6040478ec1f36"
+
+    signature = sign(raw_tx)
 
 def test_pubkey():
     pub_key, address = get_pubkey("V")
@@ -97,6 +35,8 @@ def test_app_name():
     assert app_name == "Waves Enterprise"
 
 # RUN
+test_sign()
+
 test_pubkey()
 
 test_app_version()
