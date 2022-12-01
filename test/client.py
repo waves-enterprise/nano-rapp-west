@@ -1,4 +1,5 @@
 import struct
+import threading
 
 from ledgerblue.commTCP import getDongle as getDongleTCP
 from ledgerblue.comm import getDongle
@@ -7,8 +8,13 @@ from binascii import hexlify, unhexlify
 
 from time import sleep
 
+from button import *
+
 d = getDongleTCP(port=9999)     # Speculos
 # d = getDongle()               # Nano
+
+# button_client = ButtonTCP(server="127.0.0.1", port=9999)
+button_client = ButtonAPI(server="127.0.0.1", port=5000)
 
 def exchange_raw(ins):
     response = None
@@ -30,7 +36,31 @@ def sign(raw_tx):
         Returns signature bytes
     """
     length = format(int(len(raw_tx) / 2), "x")
-    signature = exchange_raw("80020000" + length + raw_tx)
+
+    result = []
+
+    def run():
+      result.append(exchange_raw("80020000" + length + raw_tx))
+
+    th = threading.Thread(target=run, args=())
+    th.start()
+
+    # Review
+    button_client.right_click()
+    # Amount
+    button_client.right_click()
+    # Asset
+    button_client.right_click()
+    # Fee
+    button_client.right_click()
+    # Fee Asset
+    button_client.right_click()
+    # Accept
+    button_client.both_click()
+
+    th.join()
+
+    signature = result[0]
 
     return signature
 
