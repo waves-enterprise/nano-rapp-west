@@ -9,42 +9,83 @@ macro_rules! single_screen {
     };
 }
 
+/// Creating three screens for a long message
 #[macro_export]
-macro_rules! address_screen {
-    ($address: expr, $cursor: ident, $titles: ident, $messages: ident) => {
-        let a1 = unsafe { str::from_utf8_unchecked(&$address[0..16]) };
-        let a2 = unsafe { str::from_utf8_unchecked(&$address[16..32]) };
-        let a3 = unsafe { str::from_utf8_unchecked(&$address[32..]) };
+macro_rules! three_screens {
+    ($title: expr, $message: expr, $cursor: ident, $titles: ident, $messages: ident) => {
+        let title_bytes = $title.as_bytes();
+        let title_len = title_bytes.len();
 
-        $cursor += 1;
-        $titles[$cursor - 1..$cursor].clone_from_slice(&["Address (1/3)"]);
-        $messages[$cursor - 1..$cursor].clone_from_slice(&[&a1]);
+        let mut title_screen_1 = [0u8; 16];
+        title_screen_1[..title_len].clone_from_slice(title_bytes);
+        title_screen_1[title_len..title_len + 6].clone_from_slice(b" (1/3)");
 
-        $cursor += 1;
-        $titles[$cursor - 1..$cursor].clone_from_slice(&["Address (2/3)"]);
-        $messages[$cursor - 1..$cursor].clone_from_slice(&[&a2]);
+        let mut title_screen_2 = [0u8; 16];
+        title_screen_2[..title_len].clone_from_slice(title_bytes);
+        title_screen_2[title_len..title_len + 6].clone_from_slice(b" (2/3)");
 
-        $cursor += 1;
-        $titles[$cursor - 1..$cursor].clone_from_slice(&["Address (3/3)"]);
-        $messages[$cursor - 1..$cursor].clone_from_slice(&[&a3]);
+        let mut title_screen_3 = [0u8; 16];
+        title_screen_3[..title_len].clone_from_slice(title_bytes);
+        title_screen_3[title_len..title_len + 6].clone_from_slice(b" (3/3)");
+
+        let title_1 = unsafe { str::from_utf8_unchecked(&title_screen_1) };
+        let title_2 = unsafe { str::from_utf8_unchecked(&title_screen_2) };
+        let title_3 = unsafe { str::from_utf8_unchecked(&title_screen_3) };
+
+        let m1 = unsafe { str::from_utf8_unchecked(&$message[0..16]) };
+        let m2 = unsafe { str::from_utf8_unchecked(&$message[16..32]) };
+        let m3 = unsafe { str::from_utf8_unchecked(&$message[32..]) };
+
+        single_screen!(title_1, m1, $cursor, $titles, $messages);
+        single_screen!(title_2, m2, $cursor, $titles, $messages);
+        single_screen!(title_3, m3, $cursor, $titles, $messages);
     };
 }
 
-/// Creating a screen or screens for hashes
+/// Creating a screen or screens for asset
 #[macro_export]
-macro_rules! hash_screen {
+macro_rules! asset_screen {
     ($title: expr, $hash: expr, $cursor: ident, $titles: ident, $messages: ident) => {
+        let mut bytes = [0u8; 44];
+
         match $hash {
-            Some(_hash) => {
-                // TODO: Display hash
-                $cursor += 1;
-                $titles[$cursor - 1..$cursor].clone_from_slice(&[&$title]);
-                $messages[$cursor - 1..$cursor].clone_from_slice(&[&"None"]);
+            Some(hash) => {
+                hash.to_base58(&mut bytes);
+            }
+            None => (),
+        }
+
+        let title_bytes = $title.as_bytes();
+        let title_len = title_bytes.len();
+
+        let mut title_screen_1 = [0u8; 16];
+        title_screen_1[..title_len].clone_from_slice(title_bytes);
+        title_screen_1[title_len..title_len + 6].clone_from_slice(b" (1/3)");
+
+        let mut title_screen_2 = [0u8; 16];
+        title_screen_2[..title_len].clone_from_slice(title_bytes);
+        title_screen_2[title_len..title_len + 6].clone_from_slice(b" (2/3)");
+
+        let mut title_screen_3 = [0u8; 16];
+        title_screen_3[..title_len].clone_from_slice(title_bytes);
+        title_screen_3[title_len..title_len + 6].clone_from_slice(b" (3/3)");
+
+        let title_1 = unsafe { str::from_utf8_unchecked(&title_screen_1) };
+        let title_2 = unsafe { str::from_utf8_unchecked(&title_screen_2) };
+        let title_3 = unsafe { str::from_utf8_unchecked(&title_screen_3) };
+
+        let m1 = unsafe { str::from_utf8_unchecked(&bytes[0..16]) };
+        let m2 = unsafe { str::from_utf8_unchecked(&bytes[16..32]) };
+        let m3 = unsafe { str::from_utf8_unchecked(&bytes[32..]) };
+
+        match $hash {
+            Some(_) => {
+                single_screen!(title_1, m1, $cursor, $titles, $messages);
+                single_screen!(title_2, m2, $cursor, $titles, $messages);
+                single_screen!(title_3, m3, $cursor, $titles, $messages);
             }
             None => {
-                $cursor += 1;
-                $titles[$cursor - 1..$cursor].clone_from_slice(&[&$title]);
-                $messages[$cursor - 1..$cursor].clone_from_slice(&[&"WEST"]);
+                single_screen!($title, "WEST", $cursor, $titles, $messages);
             }
         }
     };
@@ -60,6 +101,7 @@ macro_rules! convert_number_to_str {
     };
 }
 
+/// Creating additional methods for the transaction and test functions
 #[macro_export]
 macro_rules! impl_transactions_test {
     ($tx: ident, $type_id: expr, $version: expr, $fee: expr) => {

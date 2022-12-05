@@ -15,7 +15,7 @@ use crate::transaction::version::Version;
 use crate::utils::deserialize::Buffer;
 
 /// Maximum size of the message list
-pub const MAX_SIZE: usize = 10;
+pub const MAX_SIZE: usize = 15;
 
 pub enum TransactionError {
     IncorrectTransaction,

@@ -6,7 +6,7 @@ use crate::utils::number_to_formatted_bytes;
 use core::str;
 
 use crate::transactions::*;
-use crate::{convert_number_to_str, hash_screen, impl_transactions_test, single_screen};
+use crate::{asset_screen, convert_number_to_str, impl_transactions_test, single_screen};
 
 #[allow(dead_code)]
 pub struct Transfer {
@@ -79,7 +79,7 @@ impl<'a> Transaction<'a> for Transfer {
         single_screen!("Amount", amount, cursor, titles, messages);
 
         // Asset
-        hash_screen!("Asset", &self.asset, cursor, titles, messages);
+        asset_screen!("Asset", &self.asset, cursor, titles, messages);
 
         // Fee
         let fee: &str;
@@ -87,7 +87,7 @@ impl<'a> Transaction<'a> for Transfer {
         single_screen!("Fee", fee, cursor, titles, messages);
 
         // Fee asset
-        hash_screen!("Fee asset", &self.fee_asset, cursor, titles, messages);
+        asset_screen!("Fee asset", &self.fee_asset, cursor, titles, messages);
 
         // Run the show and get an answer
         HorizontalValidator::new(&titles[..cursor], &messages[..cursor], TypeValidator::Sign).ask()
