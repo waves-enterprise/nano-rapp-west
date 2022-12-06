@@ -1,8 +1,10 @@
-use crate::utils::horizontal_validator::{HorizontalValidator, TypeValidator};
+mod horizontal_validator;
 
 use core::str;
 
 use crate::{single_screen, three_screens};
+
+pub use horizontal_validator::*;
 
 const MAX_SIZE: usize = 4;
 

@@ -1,6 +1,6 @@
+use crate::internal_ui::{HorizontalValidator, TypeValidator};
 use crate::transaction::account::{Address, PublicKeyAccount, PUBLIC_KEY_LENGTH};
 use crate::transaction::hash::{Asset, Hash, HASH_LENGTH};
-use crate::utils::horizontal_validator::{HorizontalValidator, TypeValidator};
 use crate::utils::number_to_formatted_bytes;
 
 use core::str;
