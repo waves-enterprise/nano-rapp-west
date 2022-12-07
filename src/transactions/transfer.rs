@@ -23,7 +23,7 @@ pub struct Transfer {
 
 impl<'a> Transaction<'a> for Transfer {
     fn from_bytes(bytes: &[u8]) -> Self {
-        let mut buffer = Buffer::new(bytes);
+        let mut deserializer = Deserializer::new(bytes);
 
         let mut type_id = 0_u8;
         let mut version = 0_u8;
@@ -35,7 +35,7 @@ impl<'a> Transaction<'a> for Transfer {
         let mut fee = [0u8; 8];
         let mut recipient: [u8; 26] = [0u8; 26];
 
-        buffer
+        deserializer
             .get_byte(&mut type_id)
             .get_byte(&mut version)
             .get_bytes(&mut sender_public_key, PUBLIC_KEY_LENGTH)

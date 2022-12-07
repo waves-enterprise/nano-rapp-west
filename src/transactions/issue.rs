@@ -22,7 +22,7 @@ pub struct Issue {
 
 impl<'a> Transaction<'a> for Issue {
     fn from_bytes(bytes: &[u8]) -> Self {
-        let mut buffer = Buffer::new(bytes);
+        let mut deserializer = Deserializer::new(bytes);
 
         let mut type_id = 0_u8;
         let mut version = 0_u8;
@@ -34,7 +34,7 @@ impl<'a> Transaction<'a> for Issue {
         let mut fee = [0u8; 8];
         let mut timestamp = [0u8; 8];
 
-        buffer
+        deserializer
             .get_byte(&mut type_id)
             .get_byte(&mut version)
             .get_byte(&mut chain_id)

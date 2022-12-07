@@ -1,57 +1,61 @@
 use crate::transaction::data_entry::DataEntry;
 
-pub struct Buffer<'a> {
+pub struct Deserializer<'a> {
     buffer: &'a [u8],
 }
 
-impl<'a> Buffer<'a> {
-    pub fn new(bytes: &[u8]) -> Buffer {
-        Buffer { buffer: bytes }
+impl<'a> Deserializer<'a> {
+    pub fn new(bytes: &[u8]) -> Deserializer {
+        Deserializer { buffer: bytes }
     }
 
-    pub fn get_byte(self: &mut Buffer<'a>, value: &mut u8) -> Buffer {
+    pub fn get_byte(self: &mut Deserializer<'a>, value: &mut u8) -> Deserializer {
         let (byte, buffer) = get_byte(self.buffer);
         *value = byte;
-        Buffer { buffer }
+        Deserializer { buffer }
     }
 
-    pub fn get_bool(self: &mut Buffer<'a>, value: &mut bool) -> Buffer {
+    pub fn get_bool(self: &mut Deserializer<'a>, value: &mut bool) -> Deserializer {
         let (byte, buffer) = get_byte(self.buffer);
         *value = to_bool(byte);
-        Buffer { buffer }
+        Deserializer { buffer }
     }
 
-    pub fn get_bytes(self: &mut Buffer<'a>, value: &mut [u8], size: usize) -> Buffer {
+    pub fn get_bytes(self: &mut Deserializer<'a>, value: &mut [u8], size: usize) -> Deserializer {
         let buffer = get_bytes(self.buffer, value, size);
-        Buffer { buffer }
+        Deserializer { buffer }
     }
 
-    pub fn get_bytes_flag(self: &mut Buffer<'a>, value: &mut [u8], size: usize) -> Buffer {
+    pub fn get_bytes_flag(
+        self: &mut Deserializer<'a>,
+        value: &mut [u8],
+        size: usize,
+    ) -> Deserializer {
         let (byte, buffer) = get_byte(self.buffer);
         let flag = to_bool(byte);
 
         if flag {
             let buffer = get_bytes(buffer, value, size);
-            Buffer { buffer }
+            Deserializer { buffer }
         } else {
-            Buffer { buffer }
+            Deserializer { buffer }
         }
     }
 
-    pub fn get_string(self: &mut Buffer<'a>, value: &mut [u8]) -> Buffer {
+    pub fn get_string(self: &mut Deserializer<'a>, value: &mut [u8]) -> Deserializer {
         let buffer = get_string(self.buffer, value);
-        Buffer { buffer }
+        Deserializer { buffer }
     }
 
     // TODO: may not be needed in the future
-    pub fn skip_string(self: &mut Buffer<'a>) -> Buffer {
+    pub fn skip_string(self: &mut Deserializer<'a>) -> Deserializer {
         let buffer = skip_string(self.buffer);
-        Buffer { buffer }
+        Deserializer { buffer }
     }
 
     // TODO: change to get_params
     // TODO: may not be needed in the future
-    pub fn skip_params(self: &mut Buffer<'a>) -> Buffer {
+    pub fn skip_params(self: &mut Deserializer<'a>) -> Deserializer {
         let (byte, buffer) = get_byte(self.buffer);
         let flag = to_bool(byte);
 
@@ -65,12 +69,12 @@ impl<'a> Buffer<'a> {
                     buffer = buf;
                     count -= 1;
                 }
-                Buffer { buffer }
+                Deserializer { buffer }
             } else {
-                Buffer { buffer }
+                Deserializer { buffer }
             }
         } else {
-            Buffer { buffer }
+            Deserializer { buffer }
         }
     }
 }
