@@ -19,8 +19,18 @@ use nanos_ui::layout::{Draw, Layout, Location, StringPlace};
 use nanos_ui::screen_util;
 use nanos_ui::ui;
 use transaction::account::PublicKeyAccount;
+use utils::DataBuffer;
 
 nanos_sdk::set_panic!(nanos_sdk::exiting_panic);
+
+// Show address confirmation
+const P1_CONFIRM: u8 = 1u8;
+// Don't show address confirmation
+const P1_NON_CONFIRM: u8 = 0u8;
+// Parameter 1 = End of Bytes to Sign (finalize)
+const P1_LAST: u8 = 0x80;
+// Parameter 1 = More bytes coming
+const P1_MORE: u8 = 0x00;
 
 /// This is the UI flow for signing, composed of a scroller
 /// to read the incoming message, a panel that requests user
@@ -46,6 +56,8 @@ extern "C" fn sample_main() {
 
     #[cfg(test)]
     test_main();
+
+    let mut buffer = DataBuffer::new();
 
     // Number of displayed pages
     const PAGE_COUNT: usize = 3;
@@ -108,7 +120,7 @@ extern "C" fn sample_main() {
                     _ => (),
                 }
             }
-            io::Event::Command(ins) => match handle_apdu(&mut comm, ins) {
+            io::Event::Command(ins) => match handle_apdu(&mut comm, ins, &mut buffer) {
                 Ok(()) => comm.reply_ok(),
                 Err(sw) => comm.reply(sw),
             },
@@ -141,16 +153,29 @@ impl From<u8> for Ins {
 
 use nanos_sdk::io::Reply;
 
-fn handle_apdu(comm: &mut io::Comm, ins: Ins) -> Result<(), Reply> {
+fn handle_apdu(comm: &mut io::Comm, ins: Ins, buffer: &mut DataBuffer) -> Result<(), Reply> {
     if comm.rx == 0 {
         return Err(io::StatusWords::NothingReceived.into());
     }
 
     match ins {
         Ins::Sign => {
-            let out = sign_ui(comm.get_data()?)?;
-            if let Some((signature_buf, length)) = out {
-                comm.append(&signature_buf[..length as usize])
+            let data = comm.get_data()?;
+            buffer.push(data);
+
+            match comm.get_p1() {
+                P1_MORE => (),
+                P1_LAST => {
+                    let out = sign_ui(buffer.as_bytes())?;
+                    if let Some((signature_buf, length)) = out {
+                        comm.append(&signature_buf[..length as usize])
+                    }
+                    buffer.clean();
+                }
+                _ => {
+                    buffer.clean();
+                    return Err(io::StatusWords::Unknown.into());
+                }
             }
         }
         Ins::GetPubkey => {
@@ -168,14 +193,18 @@ fn handle_apdu(comm: &mut io::Comm, ins: Ins) -> Result<(), Reply> {
             result[..32].clone_from_slice(pk_be.to_bytes());
             result[32..].clone_from_slice(&address[..35]);
 
-            if comm.get_p1() == 1u8 {
-                if internal_ui::verify_address(&mut address) {
-                    comm.append(&result);
-                } else {
-                    return Err(io::StatusWords::UserCancelled.into());
+            match comm.get_p1() {
+                P1_CONFIRM => {
+                    if internal_ui::verify_address(&mut address) {
+                        comm.append(&result);
+                    } else {
+                        return Err(io::StatusWords::UserCancelled.into());
+                    }
                 }
-            } else {
-                comm.append(&result);
+                P1_NON_CONFIRM => {
+                    comm.append(&result);
+                }
+                _ => return Err(io::StatusWords::Unknown.into()),
             }
         }
         Ins::GetVersion => {

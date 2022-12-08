@@ -27,7 +27,14 @@ def exchange_raw(ins):
     if response is not None:
         return response
 
-def sign(raw_tx):
+def sign_more(raw_tx):
+    """Sends APDU Sign instructions
+    """
+    length = format(int(len(raw_tx) / 2), "x")
+
+    exchange_raw("80020000" + length + raw_tx)
+
+def sign_last(raw_tx):
     """Sends APDU Sign instructions
 
     Returns
@@ -40,7 +47,7 @@ def sign(raw_tx):
     result = []
 
     def run():
-      result.append(exchange_raw("80020000" + length + raw_tx))
+      result.append(exchange_raw("80028000" + length + raw_tx))
 
     th = threading.Thread(target=run, args=())
     th.start()
