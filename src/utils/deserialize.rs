@@ -173,7 +173,7 @@ mod tests {
     const SKIP_PARAMS_BYTES: [u8; 8] = [1u8, 1u8, 0u8, 1u8, 1u8, 1u8, 1u8, 42u8];
 
     fn basic() -> Result<(), ()> {
-        let mut buffer = Buffer::new(&BYTES);
+        let mut deserializer = Deserializer::new(&BYTES);
 
         let mut byte = 0u8;
         let mut bool_value = false;
@@ -181,7 +181,7 @@ mod tests {
         let mut bytes_flag = [0u8; 2];
         let mut string = [0u8; 3];
 
-        buffer
+        deserializer
             .get_byte(&mut byte)
             .get_bool(&mut bool_value)
             .get_bytes(&mut bytes, 2)
@@ -203,11 +203,11 @@ mod tests {
     }
 
     fn skip_string() -> Result<(), ()> {
-        let mut buffer = Buffer::new(&SKIP_STRING_BYTES);
+        let mut deserializer = Deserializer::new(&SKIP_STRING_BYTES);
 
         let mut byte = 0u8;
 
-        buffer.skip_string().get_byte(&mut byte);
+        deserializer.skip_string().get_byte(&mut byte);
 
         if 42 == byte {
             Ok(())
@@ -217,11 +217,11 @@ mod tests {
     }
 
     fn skip_params() -> Result<(), ()> {
-        let mut buffer = Buffer::new(&SKIP_PARAMS_BYTES);
+        let mut deserializer = Deserializer::new(&SKIP_PARAMS_BYTES);
 
         let mut byte = 0u8;
 
-        buffer.skip_params().get_byte(&mut byte);
+        deserializer.skip_params().get_byte(&mut byte);
 
         if 42 == byte {
             Ok(())

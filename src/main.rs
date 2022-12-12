@@ -56,6 +56,10 @@ extern "C" fn sample_main() {
     #[cfg(test)]
     test_main();
 
+    /// Exiting the application after completing tests
+    #[cfg(test)]
+    nanos_sdk::exit_app(0);
+
     let mut buffer = DataBuffer::new();
 
     // Number of displayed pages
