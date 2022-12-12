@@ -1,7 +1,6 @@
 mod data_buffer;
 mod deserialize;
 
-pub mod crypto;
 pub mod macros;
 
 use numtoa::NumToA;

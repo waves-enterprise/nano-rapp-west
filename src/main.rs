@@ -4,8 +4,8 @@
 #![test_runner(nanos_sdk::sdk_test_runner)]
 #![reexport_test_harness_main = "test_main"]
 
+mod crypto;
 mod internal_ui;
-mod sodium;
 mod transaction;
 mod transactions;
 mod utils;
@@ -18,7 +18,6 @@ use nanos_ui::bagls::*;
 use nanos_ui::layout::{Draw, Layout, Location, StringPlace};
 use nanos_ui::screen_util;
 use nanos_ui::ui;
-use transaction::account::PublicKeyAccount;
 use utils::DataBuffer;
 
 nanos_sdk::set_panic!(nanos_sdk::exiting_panic);
@@ -179,18 +178,18 @@ fn handle_apdu(comm: &mut io::Comm, ins: Ins, buffer: &mut DataBuffer) -> Result
             }
         }
         Ins::GetPubkey => {
-            let pk = Ed25519::new()
-                .public_key()
-                .map_err(|x| Reply(0x6eu16 | (x as u16 & 0xff)))?;
-            let pk_be = PublicKeyAccount::from_ed25519(pk.as_ref());
+            let public_key = crypto::get_pubkey()?;
 
             let chain_id = comm.get_p2();
 
             let mut address = [0u8; 36];
-            pk_be.clone().to_address(chain_id).to_base58(&mut address);
+            public_key
+                .clone()
+                .to_address(chain_id)
+                .to_base58(&mut address);
 
             let mut result = [0u8; 67];
-            result[..32].clone_from_slice(pk_be.to_bytes());
+            result[..32].clone_from_slice(public_key.to_bytes());
             result[32..].clone_from_slice(&address[..35]);
 
             match comm.get_p1() {

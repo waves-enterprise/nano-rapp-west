@@ -62,7 +62,6 @@ def test_app_name():
     app_name = get_app_name()
     assert app_name == "Waves Enterprise"
 
-# RUN
 try:
     test_sign()
 

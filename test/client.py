@@ -30,7 +30,7 @@ def exchange_raw(ins):
 def sign_more(raw_tx):
     """Sends APDU Sign instructions
     """
-    length = format(int(len(raw_tx) / 2), "x")
+    length = get_data_length(raw_tx)
 
     exchange_raw("80020000" + length + raw_tx)
 
@@ -42,7 +42,7 @@ def sign_last(raw_tx):
     bytes
         Returns signature bytes
     """
-    length = format(int(len(raw_tx) / 2), "x")
+    length = get_data_length(raw_tx)
 
     result = []
 
@@ -54,16 +54,22 @@ def sign_last(raw_tx):
 
     # Review
     button_client.right_click()
+    sleep(1)
     # Amount
     button_client.right_click()
+    sleep(1)
     # Asset
     button_client.right_click()
+    sleep(1)
     # Fee
     button_client.right_click()
+    sleep(1)
     # Fee Asset
     button_client.right_click()
+    sleep(1)
     # Accept
     button_client.both_click()
+    sleep(1)
 
     th.join()
 
@@ -118,3 +124,6 @@ def get_app_name():
     """
     response = exchange_raw("8008")
     return response.decode("ascii")
+
+def get_data_length(data):
+    return format(int(len(data) / 2), "x")

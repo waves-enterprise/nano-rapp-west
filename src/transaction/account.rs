@@ -1,7 +1,7 @@
 use smol_base_x::{Base, Base58Btc};
 
-use crate::sodium;
-use crate::utils::crypto::secure_hash;
+use crate::crypto::secure_hash;
+use crate::crypto::sodium;
 
 pub const ADDRESS_LENGTH: usize = 26;
 pub const PUBLIC_KEY_LENGTH: usize = 32;
