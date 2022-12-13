@@ -24,7 +24,7 @@ impl Version {
 mod tests {
     use super::*;
 
-    use nanos_sdk::TestType;
+    use nanos_sdk::testing::TestType;
 
     fn version() -> Result<(), ()> {
         if Version::V1 == Version::from_u8(1u8) {

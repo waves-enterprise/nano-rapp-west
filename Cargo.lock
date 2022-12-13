@@ -52,7 +52,7 @@ dependencies = [
 [[package]]
 name = "nanos_sdk"
 version = "0.2.0"
-source = "git+https://github.com/LedgerHQ/ledger-nanos-sdk#6891f2f438303374f1fcfcb507994df102576e8d"
+source = "git+https://github.com/LedgerHQ/ledger-nanos-sdk#0002c35f984f69742b20743b3e81a80f691d6566"
 dependencies = [
  "cc",
  "num-traits",

@@ -88,7 +88,7 @@ impl PublicKeyAccount {
 mod tests {
     use super::*;
 
-    use nanos_sdk::TestType;
+    use nanos_sdk::testing::TestType;
 
     fn account_address() -> Result<(), ()> {
         let bytes = [0; ADDRESS_LENGTH];

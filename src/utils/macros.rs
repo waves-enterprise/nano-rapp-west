@@ -124,7 +124,7 @@ macro_rules! impl_transactions_test {
         mod tests {
             use super::*;
 
-            use nanos_sdk::TestType;
+            use nanos_sdk::testing::TestType;
 
             fn run() -> Result<(), ()> {
                 let tx = $tx::from_bytes(&BYTES);

@@ -166,7 +166,7 @@ fn to_bool(byte: u8) -> bool {
 mod tests {
     use super::*;
 
-    use nanos_sdk::TestType;
+    use nanos_sdk::testing::TestType;
 
     const BYTES: [u8; 12] = [1u8, 1u8, 2u8, 2u8, 1u8, 2u8, 2u8, 0u8, 3u8, 2u8, 2u8, 2u8];
     const SKIP_STRING_BYTES: [u8; 7] = [0u8, 4u8, 1u8, 1u8, 1u8, 1u8, 42u8];

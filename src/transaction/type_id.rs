@@ -42,7 +42,7 @@ impl Type {
 mod tests {
     use super::*;
 
-    use nanos_sdk::TestType;
+    use nanos_sdk::testing::TestType;
 
     fn type_transfer() -> Result<(), ()> {
         if Type::Transfer == Type::from_u8(4u8) {
