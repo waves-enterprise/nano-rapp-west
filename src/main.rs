@@ -18,7 +18,7 @@ use nanos_ui::bagls::*;
 use nanos_ui::layout::{Draw, Layout, Location, StringPlace};
 use nanos_ui::screen_util;
 use nanos_ui::ui;
-use utils::DataBuffer;
+use utils::{Context, SigningContext};
 
 nanos_sdk::set_panic!(nanos_sdk::exiting_panic);
 
@@ -34,12 +34,12 @@ const P1_MORE: u8 = 0x00;
 /// This is the UI flow for signing, composed of a scroller
 /// to read the incoming message, a panel that requests user
 /// validation, and an exit message.
-fn sign_ui(message: &[u8]) -> Result<Option<([u8; 64], u32)>, SyscallError> {
+fn sign_ui(ctx: &SigningContext) -> Result<Option<([u8; 64], u32)>, SyscallError> {
     {
-        match transactions::ask(message) {
+        match transactions::ask(ctx.buffer.as_bytes()) {
             Ok(true) => {
                 let signature = Ed25519::new()
-                    .sign(message)
+                    .sign(ctx.buffer.as_bytes())
                     .map_err(|_| SyscallError::Unspecified)?;
                 Ok(Some(signature))
             }
@@ -56,11 +56,11 @@ extern "C" fn sample_main() {
     #[cfg(test)]
     test_main();
 
-    /// Exiting the application after completing tests
+    // Exiting the application after completing tests
     #[cfg(test)]
     nanos_sdk::exit_app(0);
 
-    let mut buffer = DataBuffer::new();
+    let mut ctx = Context::new();
 
     // Number of displayed pages
     const PAGE_COUNT: usize = 3;
@@ -123,7 +123,7 @@ extern "C" fn sample_main() {
                     _ => (),
                 }
             }
-            io::Event::Command(ins) => match handle_apdu(&mut comm, ins, &mut buffer) {
+            io::Event::Command(ins) => match handle_apdu(&mut comm, ins, &mut ctx) {
                 Ok(()) => comm.reply_ok(),
                 Err(sw) => comm.reply(sw),
             },
@@ -156,7 +156,7 @@ impl From<u8> for Ins {
 
 use nanos_sdk::io::Reply;
 
-fn handle_apdu(comm: &mut io::Comm, ins: Ins, buffer: &mut DataBuffer) -> Result<(), Reply> {
+fn handle_apdu(comm: &mut io::Comm, ins: Ins, ctx: &mut Context) -> Result<(), Reply> {
     if comm.rx == 0 {
         return Err(io::StatusWords::NothingReceived.into());
     }
@@ -164,19 +164,22 @@ fn handle_apdu(comm: &mut io::Comm, ins: Ins, buffer: &mut DataBuffer) -> Result
     match ins {
         Ins::Sign => {
             let data = comm.get_data()?;
-            buffer.push(data);
 
             match comm.get_p1() {
-                P1_MORE => (),
+                P1_MORE => {
+                    ctx.signing_context.buffer.push(data);
+                }
                 P1_LAST => {
-                    let out = sign_ui(buffer.as_bytes())?;
+                    ctx.signing_context.buffer.push(data);
+
+                    let out = sign_ui(&ctx.signing_context)?;
                     if let Some((signature_buf, length)) = out {
                         comm.append(&signature_buf[..length as usize])
                     }
-                    buffer.clean();
+                    ctx.signing_context.buffer.clean();
                 }
                 _ => {
-                    buffer.clean();
+                    ctx.signing_context.buffer.clean();
                     return Err(io::StatusWords::Unknown.into());
                 }
             }
