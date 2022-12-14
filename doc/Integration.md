@@ -8,7 +8,7 @@ The source code for the application is contained in this repository. The build a
 
 # Cryptography protocol
 
-Waves uses ED25519 signature with X25519 keys (Montgomery form), but Ledger (like most of integrated cryptography devices) don't support X25519 keys. But there're the libraries with conversion functions from ED25519 keys to X25519 (Curve25519) `crypto_sign_ed25519_pk_to_curve25519(curve25519_pk, ed25519_pk)` for public key and
+Waves Enterprise uses ED25519 signature with X25519 keys (Montgomery form), but Ledger (like most of integrated cryptography devices) don't support X25519 keys. But there're the libraries with conversion functions from ED25519 keys to X25519 (Curve25519) `crypto_sign_ed25519_pk_to_curve25519(curve25519_pk, ed25519_pk)` for public key and
 `crypto_sign_ed25519_sk_to_curve25519(curve25519_sk, ed25519_skpk)` for private key:
 
 * [C](https://download.libsodium.org/doc/advanced/ed25519-curve25519.html)
@@ -50,17 +50,17 @@ or
 
 Approved request:
 ```
-HID => 80040057148000002c80579bfc800000008000000080000001
-HID <= 67e0088be66a1995b4b296df863d10389a2e4fd9369224290a134ec1a1aab0613350485a31676e63335a45467079335433655671597171414b45564577536a757433629000
-publicKey (base58): 7zV8VPvP2Pz119hj2RcRm6HDz25hkrokYpw6CjRenMYt
-address: 3PHZ1gnc3ZEFpy3T3eVqYqqAKEVEwSjut3b
+HID => 80040056148000002c80579bfc800000008000000080000001
+HID <= 5bf55c73b82ebe22be80f3430667af570fae2556a6415e6b30d4065300aa947d334e676f4d374e726a4c636135437954514b665269485179347771394b6278424d51529000
+publicKey (base58): 7By6kV2t2d188odEM4ExAve1UithKT6dLva4dwsDT3ak
+address: 3NgoM7NrjLca5CyTQKfRiHQy4wq9KbxBMQR
 ```
 
 Denied request:
 ```
-HID => 80040157148000002c80579bfc800000008000000080000001
-HID <= 9100
-User denied signing request on Ledger Nano S device.
+HID => 80040056148000002c80579bfc800000008000000080000001
+HID <= 6e02
+User denied request on Ledger Nano S device.
 ```
 
 ## Sign message
@@ -88,18 +88,17 @@ For signing order add byte `252` as data type (and `0` for data version), for so
 #### Example:
 
 ```
-HID => 800200577b8000002c80579bfc8000000080000000800000010808040204023897f7c45e11ef1e2ef9a6d70f378053c6a0e0a7b2f4cbb8d7eecebd585d237e0181121cb46877fbc5c8059919e2a9cf03dcf2fbb112020ec38b7d868b7dd742810000000163692c9e25000000000000000100000000000186a00157da1ca8737e
+HID => 800200004c04025bf55c73b82ebe22be80f3430667af570fae2556a6415e6b30d4065300aa947d00000000017410b402480000000005f5e10000000000000f4240015640b2ca70820baa3b850bf743ec6c
 HID <= 9000
-HID => 800280571b159b763ed87810231ea189c0bce5352d630abc0006707269766574
-HID <= 823a32d95430e6c9884c99b96369a66e5bd119fc6d85254942512d8c2d75f372c003c888e773c8996a41ce6b209a270366ca80d9d1fb389340a5ee7abd940d0a9000
-signature 3c1idAPkLtX3TUoXuMhLxFUHSLEq8AFY6y2SRjDxFZt99reXKkHHVJiGmfrBn5NXKSSxh5Ux1k7UHP3nS826qx3j
+HID => 800280004152c79de228e3ff05fb95003502b1da5efa1ed189c4f5c21e17256e2de99186b42cb47d3f7d3cb73201586de784ebf6fa269a7f2268ccce5abf45b6040478ec1f36
+HID <= fe3390be1614f0dfb3945aec6106a2832853e6168cc4fe268f79f75c4ce55be610450d4d565c332cdfa31ce66f259aff6986eb950302fe5004a494028e8138009000
 ```
 
 ```
-HID => 800200577b8000002c80579bfc8000000080000000800000010808040204023897f7c45e11ef1e2ef9a6d70f378053c6a0e0a7b2f4cbb8d7eecebd585d237e0181121cb46877fbc5c8059919e2a9cf03dcf2fbb112020ec38b7d868b7dd742810000000163692c9e25000000000000000100000000000186a00157da1ca8737e
+HID => 800200004c04025bf55c73b82ebe22be80f3430667af570fae2556a6415e6b30d4065300aa947d00000000017410b402480000000005f5e10000000000000f4240015640b2ca70820baa3b850bf743ec6c
 HID <= 9000
-HID => 800280571b159b763ed87810231ea189c0bce5352d630abc0006707269766574
-HID <= 9100
+HID => 800280004152c79de228e3ff05fb95003502b1da5efa1ed189c4f5c21e17256e2de99186b42cb47d3f7d3cb73201586de784ebf6fa269a7f2268ccce5abf45b6040478ec1f36
+HID <= 6e02
 User denied signing request on Ledger Nano S device.
 ```
 

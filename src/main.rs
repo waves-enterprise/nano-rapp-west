@@ -13,7 +13,7 @@ mod utils;
 use nanos_sdk::buttons::ButtonEvent;
 use nanos_sdk::ecc::Ed25519;
 use nanos_sdk::io;
-use nanos_sdk::io::SyscallError;
+use nanos_sdk::io::StatusWords;
 use nanos_ui::bagls::*;
 use nanos_ui::layout::{Draw, Layout, Location, StringPlace};
 use nanos_ui::screen_util;
@@ -34,17 +34,17 @@ const P1_MORE: u8 = 0x00;
 /// This is the UI flow for signing, composed of a scroller
 /// to read the incoming message, a panel that requests user
 /// validation, and an exit message.
-fn sign_ui(ctx: &SigningContext) -> Result<Option<([u8; 64], u32)>, SyscallError> {
+fn sign_ui(ctx: &SigningContext) -> Result<Option<([u8; 64], u32)>, StatusWords> {
     {
         match transactions::ask(ctx.buffer.as_bytes()) {
             Ok(true) => {
                 let signature = Ed25519::new()
                     .sign(ctx.buffer.as_bytes())
-                    .map_err(|_| SyscallError::Unspecified)?;
+                    .map_err(|_| StatusWords::Unknown)?;
                 Ok(Some(signature))
             }
-            Ok(false) => Ok(None),
-            Err(_) => Ok(None),
+            Ok(false) => Err(StatusWords::UserCancelled),
+            Err(_) => Err(StatusWords::Unknown),
         }
     }
 }
