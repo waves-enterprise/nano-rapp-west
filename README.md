@@ -4,21 +4,6 @@ This is a Ledger devices wallet app for Waves Enterprise.
 
 This application uses the official libraries [ledger-nanos-sdk](https://github.com/LedgerHQ/ledger-nanos-sdk) and [ledger-nanos-ui](https://github.com/LedgerHQ/ledger-nanos-ui).
 
-### **!!!Important!!!**
-
-Forks of official libraries are used at the moment, since the official libraries have flaws. This application is under development. Please see the list of what has already been implemented and what remains to be implemented.
-
-- [x] Waves cryptography
-    - [x] Signing transactions
-- [ ] Transaction support (partially)
-- [ ] UI
-    - [ ] Menu
-    - [x] Transaction view
-- [ ] Tests
-    - [x] Unit tests
-    - [ ] Integration tests
-- [ ] Documentation
-
 ## Building
 
 ### Prerequisites
