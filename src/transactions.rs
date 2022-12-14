@@ -26,7 +26,7 @@ trait Transaction<'a> {
     fn ask(&self) -> bool;
 }
 
-pub fn ask<'a>(message: &[u8]) -> Result<bool, TransactionError> {
+pub fn ask(message: &[u8]) -> Result<bool, TransactionError> {
     let mut deserializer = Deserializer::new(message);
 
     let mut type_id = 0_u8;

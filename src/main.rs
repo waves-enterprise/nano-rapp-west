@@ -192,11 +192,11 @@ fn handle_apdu(comm: &mut io::Comm, ins: Ins, ctx: &mut Context) -> Result<(), R
             let mut address = [0u8; 36];
             public_key
                 .clone()
-                .to_address(chain_id)
+                .as_address(chain_id)
                 .to_base58(&mut address);
 
             let mut result = [0u8; 67];
-            result[..32].clone_from_slice(public_key.to_bytes());
+            result[..32].clone_from_slice(public_key.as_bytes());
             result[32..].clone_from_slice(&address[..35]);
 
             match comm.get_p1() {

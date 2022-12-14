@@ -17,7 +17,7 @@ impl Address {
     }
 
     #[allow(dead_code)]
-    pub fn to_bytes(&self) -> &[u8; ADDRESS_LENGTH] {
+    pub fn as_bytes(&self) -> &[u8; ADDRESS_LENGTH] {
         &self.0
     }
 
@@ -44,28 +44,11 @@ impl PublicKeyAccount {
         PublicKeyAccount(result)
     }
 
-    // Converts little endian 65 byte (0x4 32X 32Y)
-    // public key to 32 byte Y big endian form
-    // (for other applications)
-    fn from_public_key_le(public_key: &[u8]) -> [u8; 32] {
-        let mut public_key_be = [0u8; 32];
-
-        for i in 0..32 {
-            public_key_be[i] = public_key[64 - i];
-        }
-
-        if public_key[32] & 1 != 0 {
-            public_key_be[31] |= 0x80;
-        }
-
-        public_key_be
-    }
-
-    pub fn to_bytes(&self) -> &[u8; PUBLIC_KEY_LENGTH] {
+    pub fn as_bytes(&self) -> &[u8; PUBLIC_KEY_LENGTH] {
         &self.0
     }
 
-    pub fn to_address(&mut self, chain_id: u8) -> Address {
+    pub fn as_address(&mut self, chain_id: u8) -> Address {
         let mut buf = [0u8; ADDRESS_LENGTH];
         buf[0] = ADDRESS_VERSION;
         buf[1] = chain_id;
@@ -82,6 +65,23 @@ impl PublicKeyAccount {
 
         Address::new(buf)
     }
+
+    // Converts little endian 65 byte (0x4 32X 32Y)
+    // public key to 32 byte Y big endian form
+    // (for other applications)
+    fn from_public_key_le(public_key: &[u8]) -> [u8; 32] {
+        let mut public_key_be = [0u8; 32];
+
+        for i in 0..32 {
+            public_key_be[i] = public_key[64 - i];
+        }
+
+        if public_key[32] & 1 != 0 {
+            public_key_be[31] |= 0x80;
+        }
+
+        public_key_be
+    }
 }
 
 #[cfg(test)]
@@ -94,7 +94,7 @@ mod tests {
         let bytes = [0; ADDRESS_LENGTH];
         let address = Address::new(bytes);
 
-        if bytes == *address.to_bytes() {
+        if bytes == *address.as_bytes() {
             Ok(())
         } else {
             Err(())
@@ -105,7 +105,7 @@ mod tests {
         let bytes = [0; PUBLIC_KEY_LENGTH];
         let pk = PublicKeyAccount::new(bytes);
 
-        if bytes == *pk.to_bytes() {
+        if bytes == *pk.as_bytes() {
             Ok(())
         } else {
             Err(())

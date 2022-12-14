@@ -20,6 +20,7 @@ pub fn get_pubkey() -> Result<PublicKeyAccount, SyscallError> {
 }
 
 /// Helper function that converts the derivation path received
+#[allow(clippy::needless_range_loop)]
 pub fn get_derivation_path(buf: &mut &[u8]) -> Result<[u32; 5], StatusWords> {
     let mut path = [0u32; 5];
 

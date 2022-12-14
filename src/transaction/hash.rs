@@ -30,23 +30,23 @@ impl Hash {
     }
 
     #[allow(dead_code)]
-    pub fn to_bytes(&self) -> [u8; HASH_LENGTH] {
+    pub fn as_bytes(&self) -> [u8; HASH_LENGTH] {
         self.0
-    }
-
-    pub fn to_base58(&self, buf: &mut [u8]) {
-        Base58Btc::encode_mut(self.0, buf).unwrap();
     }
 
     /// Converts to an Asset
     /// Some(self) - any other Asset
     /// None - WEST
-    pub fn to_asset(&self) -> Option<Self> {
+    pub fn as_asset(&self) -> Option<Self> {
         if self.is_empty() {
             None
         } else {
             Some(Hash::new(self.0))
         }
+    }
+
+    pub fn to_base58(&self, buf: &mut [u8]) {
+        Base58Btc::encode_mut(self.0, buf).unwrap();
     }
 }
 
@@ -60,7 +60,7 @@ mod tests {
         let bytes = [0; HASH_LENGTH];
         let hash = Hash::new(bytes);
 
-        if bytes == hash.to_bytes() {
+        if bytes == hash.as_bytes() {
             Ok(())
         } else {
             Err(())
@@ -93,7 +93,7 @@ mod tests {
         let west_bytes = [0; HASH_LENGTH];
         let hash = Hash::new(west_bytes);
 
-        if hash.to_asset().is_none() {
+        if hash.as_asset().is_none() {
             Ok(())
         } else {
             Err(())
@@ -104,7 +104,7 @@ mod tests {
         let asset_bytes = [1; HASH_LENGTH];
         let hash = Hash::new(asset_bytes);
 
-        if hash.to_asset().is_some() {
+        if hash.as_asset().is_some() {
             Ok(())
         } else {
             Err(())

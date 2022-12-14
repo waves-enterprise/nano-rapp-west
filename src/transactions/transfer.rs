@@ -46,8 +46,8 @@ impl<'a> Transaction<'a> for Transfer {
             .get_bytes(&mut fee, 8);
         // TODO: Parse recipient
 
-        let asset = Hash::new(asset_bytes).to_asset();
-        let fee_asset = Hash::new(fee_asset_bytes).to_asset();
+        let asset = Hash::new(asset_bytes).as_asset();
+        let fee_asset = Hash::new(fee_asset_bytes).as_asset();
 
         Transfer {
             type_id: Type::from_u8(type_id),

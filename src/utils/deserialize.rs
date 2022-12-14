@@ -42,19 +42,11 @@ impl<'a> Deserializer<'a> {
         }
     }
 
-    pub fn get_string(self: &mut Deserializer<'a>, value: &mut [u8]) -> Deserializer {
-        let buffer = get_string(self.buffer, value);
-        Deserializer { buffer }
-    }
-
-    // TODO: may not be needed in the future
     pub fn skip_string(self: &mut Deserializer<'a>) -> Deserializer {
         let buffer = skip_string(self.buffer);
         Deserializer { buffer }
     }
 
-    // TODO: change to get_params
-    // TODO: may not be needed in the future
     pub fn skip_params(self: &mut Deserializer<'a>) -> Deserializer {
         let (byte, buffer) = get_byte(self.buffer);
         let flag = to_bool(byte);
@@ -63,7 +55,6 @@ impl<'a> Deserializer<'a> {
             let (mut count, mut buffer) = get_u8(buffer);
             if count > 0 {
                 while count > 0 {
-                    // TODO: parse key and value
                     buffer = skip_string(buffer);
                     let (_, buf) = skip_value(buffer);
                     buffer = buf;
@@ -117,17 +108,6 @@ fn get_u64(buffer: &[u8]) -> (u64, &[u8]) {
     (u64::from_be_bytes(temp), buffer)
 }
 
-fn get_string<'a>(buffer: &'a [u8], value: &mut [u8]) -> &'a [u8] {
-    let (length, buffer) = get_u16(buffer);
-
-    if length > 0 {
-        get_bytes(buffer, value, length)
-    } else {
-        buffer
-    }
-}
-
-// TODO: may not be needed in the future
 fn skip_string(buffer: &[u8]) -> &[u8] {
     let (length, buffer) = get_u16(buffer);
 
@@ -138,8 +118,6 @@ fn skip_string(buffer: &[u8]) -> &[u8] {
     }
 }
 
-// TODO: change to get_value
-// TODO: may not be needed in the future
 fn skip_value(buffer: &[u8]) -> (DataEntry, &[u8]) {
     let (byte, buffer) = get_byte(buffer);
 
@@ -179,21 +157,18 @@ mod tests {
         let mut bool_value = false;
         let mut bytes = [0u8; 2];
         let mut bytes_flag = [0u8; 2];
-        let mut string = [0u8; 3];
 
         deserializer
             .get_byte(&mut byte)
             .get_bool(&mut bool_value)
             .get_bytes(&mut bytes, 2)
-            .get_bytes_flag(&mut bytes_flag, 2)
-            .get_string(&mut string);
+            .get_bytes_flag(&mut bytes_flag, 2);
 
         let mut result = false;
         result = 1 == byte;
         result = true == bool_value;
         result = [2u8; 2] == bytes;
         result = [2u8; 2] == bytes_flag;
-        result = [2u8; 3] == string;
 
         if result {
             Ok(())
