@@ -67,10 +67,10 @@ extern "C" fn sample_main() {
     // Current page displayed
     let mut cur_page = 0;
 
-    loop {
+    let draw = |page: usize| {
         ui::clear_screen();
 
-        match cur_page {
+        match page {
             0 => {
                 ["Application", "is ready"].place(Location::Middle, Layout::Centered, false);
             }
@@ -90,7 +90,11 @@ extern "C" fn sample_main() {
         RIGHT_ARROW.display();
 
         screen_util::screen_update();
+    };
 
+    draw(cur_page);
+
+    loop {
         // Wait for either a specific button push to exit the app
         // or an APDU command
         match comm.next_event() {
@@ -106,6 +110,7 @@ extern "C" fn sample_main() {
                 } else {
                     cur_page = PAGE_COUNT - 1;
                 }
+                draw(cur_page);
             }
             io::Event::Button(ButtonEvent::RightButtonRelease) => {
                 if cur_page + 1 < PAGE_COUNT {
@@ -113,6 +118,7 @@ extern "C" fn sample_main() {
                 } else {
                     cur_page = 0;
                 }
+                draw(cur_page);
             }
             io::Event::Button(ButtonEvent::BothButtonsRelease) => {
                 // Selecting a menu item
