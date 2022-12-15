@@ -1,9 +1,11 @@
 use nanos_sdk::buttons::{ButtonEvent, ButtonsState};
 use nanos_ui::bagls::*;
+use nanos_ui::bitmaps;
 use nanos_ui::layout::{Draw, Layout, Location, StringPlace};
 use nanos_ui::screen_util;
 use nanos_ui::ui;
 
+#[derive(Clone, Copy)]
 pub enum TypeValidator {
     Sign,
     Verify,
@@ -52,20 +54,10 @@ impl<'a> HorizontalValidator<'a> {
                 )
             } else if page == page_count {
                 // Confirmation of transaction signing
-                CHECKMARK_ICON.display();
-
-                match self.type_ {
-                    TypeValidator::Sign => {
-                        ["Accept", "and send"].place(Location::Middle, Layout::Centered, true);
-                    }
-                    TypeValidator::Verify => {
-                        ["Approve"].place(Location::Middle, Layout::Centered, true);
-                    }
-                }
+                confirmation_page(self.type_);
             } else if page == page_count + 1 {
                 // Cancel the signing of a transaction
-                CROSS_ICON.display();
-                "Reject".place(Location::Middle, Layout::Centered, true)
+                reject();
             } else {
                 self.titles[page].place(Location::Top, Layout::Centered, true);
 
@@ -121,4 +113,59 @@ impl<'a> HorizontalValidator<'a> {
             }
         }
     }
+}
+
+#[cfg(target_os = "nanos")]
+fn confirmation_page(type_: TypeValidator) {
+    CHECKMARK_ICON.display();
+
+    match type_ {
+        TypeValidator::Sign => {
+            ["Accept", "and send"].place(Location::Middle, Layout::Centered, true);
+        }
+        TypeValidator::Verify => {
+            ["Approve"].place(Location::Middle, Layout::Centered, true);
+        }
+    }
+}
+
+#[cfg(not(target_os = "nanos"))]
+fn confirmation_page(type_: TypeValidator) {
+    CHECKMARK_ICON
+        .set_x(Layout::Centered.get_x(bitmaps::CHECKMARK.width as usize) as i16)
+        .shift_v(-12)
+        .display();
+
+    match type_ {
+        TypeValidator::Sign => {
+            ["Accept", "and send"].place(Location::Bottom, Layout::Centered, true);
+        }
+        TypeValidator::Verify => {
+            ["Approve"].place(
+                Location::Custom(nanos_ui::SCREEN_HEIGHT - 24),
+                Layout::Centered,
+                true,
+            );
+        }
+    }
+}
+
+#[cfg(target_os = "nanos")]
+fn reject() {
+    CROSS_ICON.display();
+    "Reject".place(Location::Middle, Layout::Centered, true)
+}
+
+#[cfg(not(target_os = "nanos"))]
+fn reject() {
+    CROSS_ICON
+        .set_x(Layout::Centered.get_x(bitmaps::CROSS.width as usize) as i16)
+        .shift_v(-12)
+        .display();
+
+    "Reject".place(
+        Location::Custom(nanos_ui::SCREEN_HEIGHT - 24),
+        Layout::Centered,
+        true,
+    )
 }

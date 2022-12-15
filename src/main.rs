@@ -110,6 +110,7 @@ extern "C" fn sample_main() {
                 } else {
                     cur_page = PAGE_COUNT - 1;
                 }
+
                 draw(cur_page);
             }
             io::Event::Button(ButtonEvent::RightButtonRelease) => {
@@ -118,6 +119,7 @@ extern "C" fn sample_main() {
                 } else {
                     cur_page = 0;
                 }
+
                 draw(cur_page);
             }
             io::Event::Button(ButtonEvent::BothButtonsRelease) => {
@@ -129,10 +131,14 @@ extern "C" fn sample_main() {
                     _ => (),
                 }
             }
-            io::Event::Command(ins) => match handle_apdu(&mut comm, ins, &mut ctx) {
-                Ok(()) => comm.reply_ok(),
-                Err(sw) => comm.reply(sw),
-            },
+            io::Event::Command(ins) => {
+                match handle_apdu(&mut comm, ins, &mut ctx) {
+                    Ok(()) => comm.reply_ok(),
+                    Err(sw) => comm.reply(sw),
+                }
+
+                draw(cur_page);
+            }
             _ => (),
         }
     }
