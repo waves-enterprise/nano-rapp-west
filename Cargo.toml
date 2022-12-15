@@ -20,6 +20,6 @@ lto = true
 [package.metadata.nanos]
 curve = "ed25519"
 flags = "0"
-icon = "crab.gif"
-icon_small = ""
+icon = "icons/nanos_app_west.gif"
+icon_small = "icons/nanox_app_west.gif"
 path = ""
