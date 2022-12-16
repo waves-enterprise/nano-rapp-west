@@ -11,7 +11,6 @@ mod transactions;
 mod utils;
 
 use nanos_sdk::buttons::ButtonEvent;
-use nanos_sdk::ecc::Ed25519;
 use nanos_sdk::io;
 use nanos_sdk::io::StatusWords;
 use nanos_ui::bagls::*;
@@ -34,14 +33,12 @@ const P1_MORE: u8 = 0x00;
 /// This is the UI flow for signing, composed of a scroller
 /// to read the incoming message, a panel that requests user
 /// validation, and an exit message.
-fn sign_ui(ctx: &SigningContext) -> Result<Option<([u8; 64], u32)>, StatusWords> {
+fn sign_ui(ctx: &SigningContext) -> Result<([u8; 64], u32), StatusWords> {
     {
         match transactions::ask(ctx.buffer.as_bytes()) {
             Ok(true) => {
-                let signature = Ed25519::new()
-                    .sign(ctx.buffer.as_bytes())
-                    .map_err(|_| StatusWords::Unknown)?;
-                Ok(Some(signature))
+                let signature = crypto::sign(ctx.buffer.as_bytes(), &ctx.bip32)?;
+                Ok(signature)
             }
             Ok(false) => Err(StatusWords::UserCancelled),
             Err(_) => Err(StatusWords::Unknown),
@@ -179,15 +176,31 @@ fn handle_apdu(comm: &mut io::Comm, ins: Ins, ctx: &mut Context) -> Result<(), R
 
             match comm.get_p1() {
                 P1_MORE => {
-                    ctx.signing_context.buffer.push(data);
+                    // If this is a first chunk
+                    if ctx.signing_context.buffer.length() == 0 {
+                        // Then there're the bip32 path in the first chunk - first 20 bytes of data
+                        let mut buf = [0u8; 20];
+                        buf.clone_from_slice(&data[..20]);
+
+                        let path = crypto::get_derivation_path(&mut &buf[..])?;
+                        ctx.signing_context.bip32 = path;
+
+                        // 21 byte - amount decimals
+                        ctx.signing_context.amount_decimals = data[20];
+                        // 22 byte - fee decimals
+                        ctx.signing_context.fee_decimals = data[21];
+
+                        ctx.signing_context.buffer.push(&data[22..]);
+                    } else {
+                        ctx.signing_context.buffer.push(data);
+                    }
                 }
                 P1_LAST => {
                     ctx.signing_context.buffer.push(data);
 
-                    let out = sign_ui(&ctx.signing_context)?;
-                    if let Some((signature_buf, length)) = out {
-                        comm.append(&signature_buf[..length as usize])
-                    }
+                    let (signature_buf, length) = sign_ui(&ctx.signing_context)?;
+                    comm.append(&signature_buf[..length as usize]);
+
                     ctx.signing_context.buffer.clean();
                 }
                 _ => {
@@ -197,7 +210,11 @@ fn handle_apdu(comm: &mut io::Comm, ins: Ins, ctx: &mut Context) -> Result<(), R
             }
         }
         Ins::GetPubkey => {
-            let public_key = crypto::get_pubkey()?;
+            let mut data = comm.get_data()?;
+
+            let path = crypto::get_derivation_path(&mut data)?;
+
+            let public_key = crypto::get_pubkey(&path)?;
 
             let chain_id = comm.get_p2();
 

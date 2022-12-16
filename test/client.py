@@ -9,6 +9,7 @@ from binascii import hexlify, unhexlify
 from time import sleep
 
 from button import *
+from utils import expand_path, path_to_bytes
 
 d = getDongleTCP(port=9999)     # Speculos
 # d = getDongle()               # Nano
@@ -27,14 +28,26 @@ def exchange_raw(ins):
     if response is not None:
         return response
 
-def sign_more(raw_tx):
+def sign_first_chunk(raw_tx, bip32_path):
+    """Sends APDU Sign instructions
+    """
+
+    bip32_bytes = str(hexlify(path_to_bytes(expand_path(bip32_path))))[2:-1]
+
+    raw_tx = bip32_bytes + "0000" + raw_tx
+
+    length = get_data_length(raw_tx)
+
+    exchange_raw("80020000" + length + raw_tx)
+
+def sign_next_chunk(raw_tx):
     """Sends APDU Sign instructions
     """
     length = get_data_length(raw_tx)
 
     exchange_raw("80020000" + length + raw_tx)
 
-def sign_last(raw_tx):
+def sign_last_chunk(raw_tx):
     """Sends APDU Sign instructions
 
     Returns
@@ -77,7 +90,7 @@ def sign_last(raw_tx):
 
     return signature
 
-def get_pubkey(chain_id):
+def get_pubkey(chain_id, bip32_path):
     """Sends APDU GetPubkey instructions
 
     Returns
@@ -87,7 +100,11 @@ def get_pubkey(chain_id):
     """
     chain_id_hex = hexlify(chain_id.encode("ascii"))
 
-    response = exchange_raw("800400" + str(chain_id_hex)[2:-1])
+    bip32_bytes = str(hexlify(path_to_bytes(expand_path(bip32_path))))[2:-1]
+
+    length = get_data_length(bip32_bytes)
+
+    response = exchange_raw("800400" + str(chain_id_hex)[2:-1] + length + bip32_bytes)
 
     pub_key: bytes = response[0:32]
     address: bytes = response[32:67]

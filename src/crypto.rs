@@ -1,7 +1,7 @@
 pub mod sodium;
 
 use nanos_sdk::bindings::*;
-use nanos_sdk::ecc::Ed25519;
+use nanos_sdk::ecc::{Ed25519, SeedDerive};
 use nanos_sdk::io::{StatusWords, SyscallError};
 
 use crate::transaction::account::PublicKeyAccount;
@@ -10,13 +10,22 @@ const PATH_BYTES_LENGTH: usize = 20;
 const PATH_PREFIX: u32 = 0x8000002C;
 
 /// Helper function that retrieves public key
-pub fn get_pubkey() -> Result<PublicKeyAccount, SyscallError> {
-    let private_key = Ed25519::new();
+pub fn get_pubkey(path: &[u32]) -> Result<PublicKeyAccount, SyscallError> {
+    let private_key = Ed25519::derive_from_path(path);
 
     match private_key.public_key() {
         Ok(public_key) => Ok(PublicKeyAccount::from_ed25519(public_key.as_ref())),
         Err(_) => Err(SyscallError::Unspecified),
     }
+}
+
+/// Helper function that sign message
+pub fn sign(message: &[u8], path: &[u32]) -> Result<([u8; 64], u32), StatusWords> {
+    let signature = Ed25519::derive_from_path(path)
+        .sign(message)
+        .map_err(|_| StatusWords::Unknown)?;
+
+    Ok(signature)
 }
 
 /// Helper function that converts the derivation path received

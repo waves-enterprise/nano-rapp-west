@@ -14,6 +14,7 @@ impl Context {
 
 pub struct SigningContext {
     pub buffer: DataBuffer,
+    pub bip32: [u32; 5],
     pub amount_decimals: u8,
     pub fee_decimals: u8,
 }
@@ -22,6 +23,7 @@ impl SigningContext {
     pub fn new() -> Self {
         SigningContext {
             buffer: DataBuffer::new(),
+            bip32: [0u32; 5],
             amount_decimals: 0,
             fee_decimals: 0,
         }
