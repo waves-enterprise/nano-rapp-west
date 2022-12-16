@@ -4,6 +4,9 @@ use nanos_ui::layout::{Draw, Layout, Location, StringPlace};
 use nanos_ui::screen_util;
 use nanos_ui::ui;
 
+#[cfg(not(target_os = "nanos"))]
+use nanos_ui::bitmaps;
+
 #[derive(Clone, Copy)]
 pub enum TypeValidator {
     Sign,
