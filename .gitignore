@@ -1,2 +1,3 @@
 target
 app*.json
+test/__pycache__
