@@ -35,7 +35,7 @@ const P1_MORE: u8 = 0x00;
 /// validation, and an exit message.
 fn sign_ui(ctx: &SigningContext) -> Result<([u8; 64], u32), StatusWords> {
     {
-        match transactions::ask(ctx.buffer.as_bytes()) {
+        match transactions::ask(ctx) {
             Ok(true) => {
                 let signature = crypto::sign(ctx.buffer.as_bytes(), &ctx.bip32)?;
                 Ok(signature)

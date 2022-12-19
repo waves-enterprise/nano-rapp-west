@@ -12,7 +12,7 @@ use transfer::Transfer;
 
 use crate::transaction::type_id::Type;
 use crate::transaction::version::Version;
-use crate::utils::Deserializer;
+use crate::utils::{Deserializer, SigningContext};
 
 /// Maximum size of the message list
 pub const MAX_SIZE: usize = 15;
@@ -22,12 +22,12 @@ pub enum TransactionError {
 }
 
 trait Transaction<'a> {
-    fn from_bytes(bytes: &[u8]) -> Self;
-    fn ask(&self) -> bool;
+    fn from_bytes(ctx: &SigningContext) -> Self;
+    fn ask(&self, ctx: &SigningContext) -> bool;
 }
 
-pub fn ask(message: &[u8]) -> Result<bool, TransactionError> {
-    let mut deserializer = Deserializer::new(message);
+pub fn ask(ctx: &SigningContext) -> Result<bool, TransactionError> {
+    let mut deserializer = Deserializer::new(ctx.buffer.as_bytes());
 
     let mut type_id = 0_u8;
     let mut version = 0_u8;
@@ -35,11 +35,11 @@ pub fn ask(message: &[u8]) -> Result<bool, TransactionError> {
     deserializer.get_byte(&mut type_id).get_byte(&mut version);
 
     match (Type::from_u8(type_id), Version::from_u8(version)) {
-        (Type::Issue, Version::V2) => Ok(Issue::from_bytes(message).ask()),
-        (Type::Transfer, Version::V2) => Ok(Transfer::from_bytes(message).ask()),
-        (Type::Reissue, Version::V2) => Ok(Reissue::from_bytes(message).ask()),
-        (Type::Burn, Version::V2) => Ok(Burn::from_bytes(message).ask()),
-        (Type::CreateContract, Version::V2) => Ok(CreateContract::from_bytes(message).ask()),
+        (Type::Issue, Version::V2) => Ok(Issue::from_bytes(ctx).ask(ctx)),
+        (Type::Transfer, Version::V2) => Ok(Transfer::from_bytes(ctx).ask(ctx)),
+        (Type::Reissue, Version::V2) => Ok(Reissue::from_bytes(ctx).ask(ctx)),
+        (Type::Burn, Version::V2) => Ok(Burn::from_bytes(ctx).ask(ctx)),
+        (Type::CreateContract, Version::V2) => Ok(CreateContract::from_bytes(ctx).ask(ctx)),
         _ => Err(TransactionError::IncorrectTransaction),
     }
 }

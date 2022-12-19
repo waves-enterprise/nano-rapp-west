@@ -34,7 +34,7 @@ def sign_first_chunk(raw_tx, bip32_path):
 
     bip32_bytes = str(hexlify(path_to_bytes(expand_path(bip32_path))))[2:-1]
 
-    raw_tx = bip32_bytes + "0000" + raw_tx
+    raw_tx = bip32_bytes + "0808" + raw_tx
 
     length = get_data_length(raw_tx)
 

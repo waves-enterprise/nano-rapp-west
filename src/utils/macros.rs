@@ -95,8 +95,8 @@ macro_rules! asset_screen {
 /// needed to display it on the screen
 #[macro_export]
 macro_rules! convert_number_to_str {
-    ($value: expr, $variable: ident, $buf: ident) => {
-        let (buf, buf_size) = number_to_formatted_bytes($value, &mut $buf);
+    ($value: expr, $variable: ident, $buf: ident, $decimals: expr) => {
+        let (buf, buf_size) = number_to_formatted_bytes($value, &mut $buf, $decimals);
         $variable = unsafe { str::from_utf8_unchecked(&buf[..buf_size]) };
     };
 }
@@ -127,7 +127,10 @@ macro_rules! impl_transactions_test {
             use nanos_sdk::testing::TestType;
 
             fn run() -> Result<(), ()> {
-                let tx = $tx::from_bytes(&BYTES);
+                let mut ctx = SigningContext::new();
+                ctx.buffer.push(&BYTES);
+
+                let tx = $tx::from_bytes(&ctx);
 
                 let mut result = false;
 

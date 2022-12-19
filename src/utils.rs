@@ -8,16 +8,14 @@ use numtoa::NumToA;
 pub use context::*;
 pub use deserialize::*;
 
-const DECIMALS: u64 = 100000000;
-
 /// Converting numbers to a formatted bytes
-pub fn number_to_formatted_bytes(number: u64, buf: &mut [u8]) -> ([u8; 20], usize) {
+pub fn number_to_formatted_bytes(number: u64, buf: &mut [u8], decimals: u8) -> ([u8; 20], usize) {
     let mut buffer = [0u8; 20];
     #[allow(unused_assignments)]
     let mut cursor = 0;
 
-    let quotient = number.div_euclid(DECIMALS);
-    let reste = number.rem_euclid(DECIMALS);
+    let quotient = number.div_euclid(10u64.saturating_pow(decimals as u32));
+    let reste = number.rem_euclid(10u64.saturating_pow(decimals as u32));
 
     let quotient_str = quotient.numtoa_str(10, buf);
     cursor = quotient_str.as_bytes().len();
@@ -41,4 +39,35 @@ pub fn number_to_formatted_bytes(number: u64, buf: &mut [u8]) -> ([u8; 20], usiz
     }
 
     (buffer, cursor + 3)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    use core::str;
+    use nanos_sdk::testing::TestType;
+
+    fn num_to_str() -> Result<(), ()> {
+        let mut temp = [0u8; 20];
+
+        let (buf, buf_size) = number_to_formatted_bytes(100, &mut temp, 2);
+
+        let result = unsafe { str::from_utf8_unchecked(&buf[..buf_size]) };
+
+        if "1.000".eq_ignore_ascii_case(result) {
+            Ok(())
+        } else {
+            Err(())
+        }
+
+        // Ok(())
+    }
+
+    #[test_case]
+    const TEST_account_address: TestType = TestType {
+        modname: "utils",
+        name: "num_to_str",
+        f: num_to_str,
+    };
 }

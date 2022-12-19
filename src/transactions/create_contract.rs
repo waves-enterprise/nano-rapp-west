@@ -17,7 +17,8 @@ pub struct CreateContract {
 }
 
 impl<'a> Transaction<'a> for CreateContract {
-    fn from_bytes(bytes: &[u8]) -> Self {
+    fn from_bytes(ctx: &SigningContext) -> Self {
+        let bytes = ctx.buffer.as_bytes();
         let mut deserializer = Deserializer::new(bytes);
 
         let mut type_id = 0_u8;
@@ -46,7 +47,7 @@ impl<'a> Transaction<'a> for CreateContract {
         }
     }
 
-    fn ask(&self) -> bool {
+    fn ask(&self, ctx: &SigningContext) -> bool {
         let mut titles = [""; MAX_SIZE];
         let mut messages = [""; MAX_SIZE];
         let mut cursor: usize = 0;
@@ -59,7 +60,7 @@ impl<'a> Transaction<'a> for CreateContract {
 
         // Fee
         let fee: &str;
-        convert_number_to_str!(self.fee, fee, temp);
+        convert_number_to_str!(self.fee, fee, temp, ctx.fee_decimals);
         single_screen!("Fee", fee, cursor, titles, messages);
 
         // Fee asset
