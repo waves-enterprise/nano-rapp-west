@@ -198,6 +198,8 @@ fn handle_apdu(comm: &mut io::Comm, ins: Ins, ctx: &mut Context) -> Result<(), R
                 P1_LAST => {
                     ctx.signing_context.buffer.push(data);
 
+                    ctx.signing_context.network_byte = comm.get_p2();
+
                     let (signature_buf, length) = sign_ui(&ctx.signing_context)?;
                     comm.append(&signature_buf[..length as usize]);
 

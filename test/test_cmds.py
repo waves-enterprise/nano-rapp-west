@@ -23,7 +23,7 @@ def test_sign():
     sign_first_chunk(raw_tx = raw_tx_1, bip32_path = BIP32_PATH)
     sign_next_chunk(raw_tx_2)
 
-    signature = sign_last_chunk(raw_tx_3)
+    signature = sign_last_chunk(raw_tx_3, CHAIN_ID)
 
     assert len(pub_key) == 32
     assert len(signature) == 64

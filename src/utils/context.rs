@@ -17,6 +17,7 @@ pub struct SigningContext {
     pub bip32: [u32; 5],
     pub amount_decimals: u8,
     pub fee_decimals: u8,
+    pub network_byte: u8,
 }
 
 impl SigningContext {
@@ -26,6 +27,7 @@ impl SigningContext {
             bip32: [0u32; 5],
             amount_decimals: 0,
             fee_decimals: 0,
+            network_byte: 0,
         }
     }
 }

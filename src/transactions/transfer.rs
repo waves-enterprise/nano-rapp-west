@@ -6,7 +6,9 @@ use crate::utils::number_to_formatted_bytes;
 use core::str;
 
 use crate::transactions::*;
-use crate::{asset_screen, convert_number_to_str, impl_transactions_test, single_screen};
+use crate::{
+    asset_screen, convert_number_to_str, impl_transactions_test, single_screen, three_screens,
+};
 
 #[allow(dead_code)]
 pub struct Transfer {
@@ -73,6 +75,14 @@ impl<'a> Transaction<'a> for Transfer {
 
         // Transaction type
         single_screen!("Review", "transfer", cursor, titles, messages);
+
+        // From
+        let mut address = [0u8; 36];
+        self.sender_public_key
+            .clone()
+            .as_address(ctx.network_byte)
+            .to_base58(&mut address);
+        three_screens!("From", address, cursor, titles, messages);
 
         // Amount
         let amount: &str;

@@ -47,7 +47,7 @@ def sign_next_chunk(raw_tx):
 
     exchange_raw("80020000" + length + raw_tx)
 
-def sign_last_chunk(raw_tx):
+def sign_last_chunk(raw_tx, chain_id):
     """Sends APDU Sign instructions
 
     Returns
@@ -55,12 +55,14 @@ def sign_last_chunk(raw_tx):
     bytes
         Returns signature bytes
     """
+    chain_id_hex = hexlify(chain_id.encode("ascii"))
+
     length = get_data_length(raw_tx)
 
     result = []
 
     def run():
-      result.append(exchange_raw("80028000" + length + raw_tx))
+      result.append(exchange_raw("800280" + str(chain_id_hex)[2:-1] + length + raw_tx))
 
     th = threading.Thread(target=run, args=())
     th.start()
