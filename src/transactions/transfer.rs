@@ -106,7 +106,7 @@ impl<'a> Transaction<'a> for Transfer {
 }
 
 // Example transaction for tests
-#[allow(dead_code)]
+#[cfg(test)]
 const BYTES: [u8; 141] = [
     4, 2, 30, 179, 95, 61, 75, 82, 107, 179, 157, 154, 213, 160, 129, 207, 205, 75, 153, 37, 53,
     128, 108, 244, 145, 136, 134, 145, 43, 17, 46, 65, 200, 8, 0, 0, 0, 0, 1, 116, 16, 180, 2, 72,
