@@ -60,11 +60,11 @@ extern "C" fn sample_main() {
     let mut ctx = Context::new();
 
     // Number of displayed pages
-    const PAGE_COUNT: usize = 3;
+    const PAGE_COUNT: u8 = 3;
     // Current page displayed
-    let mut cur_page = 0;
+    let mut cur_page: u8 = 0;
 
-    let draw = |page: usize| {
+    let draw = |page: u8| {
         ui::clear_screen();
 
         match page {
@@ -179,10 +179,7 @@ fn handle_apdu(comm: &mut io::Comm, ins: Ins, ctx: &mut Context) -> Result<(), R
                     // If this is a first chunk
                     if ctx.signing_context.buffer.length() == 0 {
                         // Then there're the bip32 path in the first chunk - first 20 bytes of data
-                        let mut buf = [0u8; 20];
-                        buf.clone_from_slice(&data[..20]);
-
-                        let path = crypto::get_derivation_path(&mut &buf[..])?;
+                        let path = crypto::get_derivation_path(&data[..20])?;
                         ctx.signing_context.bip32 = path;
 
                         // 21 byte - amount decimals
@@ -212,9 +209,9 @@ fn handle_apdu(comm: &mut io::Comm, ins: Ins, ctx: &mut Context) -> Result<(), R
             }
         }
         Ins::GetPubkey => {
-            let mut data = comm.get_data()?;
+            let data = comm.get_data()?;
 
-            let path = crypto::get_derivation_path(&mut data)?;
+            let path = crypto::get_derivation_path(data)?;
 
             let public_key = crypto::get_pubkey(&path)?;
 

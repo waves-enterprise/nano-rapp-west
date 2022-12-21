@@ -69,6 +69,7 @@ impl PublicKeyAccount {
     // Converts little endian 65 byte (0x4 32X 32Y)
     // public key to 32 byte Y big endian form
     // (for other applications)
+    #[inline(always)]
     fn from_public_key_le(public_key: &[u8]) -> [u8; 32] {
         let mut public_key_be = [0u8; 32];
 

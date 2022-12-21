@@ -29,15 +29,12 @@ pub fn sign(message: &[u8], path: &[u32]) -> Result<([u8; 64], u32), StatusWords
 }
 
 /// Helper function that converts the derivation path received
-#[allow(clippy::needless_range_loop)]
-pub fn get_derivation_path(buf: &mut &[u8]) -> Result<[u32; 5], StatusWords> {
+pub fn get_derivation_path(buf: &[u8]) -> Result<[u32; 5], StatusWords> {
     let mut path = [0u32; 5];
 
     match buf.len() {
         PATH_BYTES_LENGTH => {
-            for i in 0..4 {
-                let (int_bytes, rest) = buf.split_at(4);
-                *buf = rest;
+            for (i, int_bytes) in buf.chunks(4).enumerate() {
                 path[i] = u32::from_be_bytes(int_bytes.try_into().unwrap());
             }
 
@@ -55,6 +52,7 @@ pub fn secure_hash(msg: &mut [u8], msg_len: u32, hash: &mut [u8; 32]) {
     keccak_256(&mut hash.clone(), 32, hash);
 }
 
+#[inline(always)]
 fn blake2b_256(msg: &mut [u8], msg_len: u32, out: &mut [u8]) {
     let mut ctx: cx_blake2b_t = cx_blake2b_s::default();
 
@@ -72,6 +70,7 @@ fn blake2b_256(msg: &mut [u8], msg_len: u32, out: &mut [u8]) {
     }
 }
 
+#[inline(always)]
 fn keccak_256(msg: &mut [u8], msg_len: u32, out: &mut [u8]) {
     let mut ctx: cx_sha3_t = cx_sha3_s::default();
 

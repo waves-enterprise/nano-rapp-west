@@ -1,5 +1,6 @@
 /// Transaction type
 #[derive(Clone, Copy, Eq, PartialEq)]
+#[repr(u8)]
 pub enum Type {
     Issue = 3,
     Transfer = 4,
