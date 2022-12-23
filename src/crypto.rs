@@ -35,7 +35,9 @@ pub fn get_derivation_path(buf: &[u8]) -> Result<[u32; 5], StatusWords> {
     match buf.len() {
         PATH_BYTES_LENGTH => {
             for (i, int_bytes) in buf.chunks(4).enumerate() {
-                path[i] = u32::from_be_bytes(int_bytes.try_into().unwrap());
+                if i < 4 {
+                    path[i] = u32::from_be_bytes(int_bytes.try_into().unwrap());
+                }
             }
 
             match path[0] {

@@ -70,6 +70,15 @@ def sign_last_chunk(raw_tx, chain_id):
     # Review
     button_client.right_click()
     sleep(1)
+    # From
+    button_client.right_click()
+    sleep(1)
+
+    button_client.right_click()
+    sleep(1)
+
+    button_client.right_click()
+    sleep(1)
     # Amount
     button_client.right_click()
     sleep(1)
