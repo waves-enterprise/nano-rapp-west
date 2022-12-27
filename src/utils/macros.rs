@@ -107,14 +107,6 @@ macro_rules! impl_transactions_test {
     ($tx: ident, $type_id: expr, $version: expr, $fee: expr) => {
         #[cfg(test)]
         impl $tx {
-            pub fn get_type_id(&self) -> Type {
-                self.type_id
-            }
-
-            pub fn get_version(&self) -> Version {
-                self.version
-            }
-
             pub fn get_fee(&self) -> u64 {
                 self.fee
             }
@@ -132,15 +124,7 @@ macro_rules! impl_transactions_test {
 
                 let tx = $tx::from_bytes(&ctx);
 
-                let mut result = false;
-
-                result = tx.get_type_id() == $type_id;
-
-                result = tx.get_version() == $version;
-
-                result = tx.get_fee() == $fee;
-
-                if result {
+                if tx.get_fee() == $fee {
                     Ok(())
                 } else {
                     Err(())

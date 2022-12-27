@@ -10,9 +10,6 @@ use crate::{convert_number_to_str, impl_transactions_test, single_screen, three_
 
 #[allow(dead_code)]
 pub struct Burn {
-    type_id: Type,
-    version: Version,
-    chain_id: u8,
     sender_public_key: PublicKeyAccount,
     asset_id: Asset,
     amount: u64,
@@ -25,9 +22,6 @@ impl<'a> Transaction<'a> for Burn {
         let bytes = ctx.buffer.as_bytes();
         let mut deserializer = Deserializer::new(bytes);
 
-        let mut type_id = 0_u8;
-        let mut version = 0_u8;
-        let mut chain_id = 0_u8;
         let mut sender_public_key = [0u8; PUBLIC_KEY_LENGTH];
         let mut asset_bytes = [0u8; HASH_LENGTH];
         let mut amount = [0u8; 8];
@@ -35,9 +29,9 @@ impl<'a> Transaction<'a> for Burn {
         let mut timestamp = [0u8; 8];
 
         deserializer
-            .get_byte(&mut type_id)
-            .get_byte(&mut version)
-            .get_byte(&mut chain_id)
+            .skip_byte() // type_id
+            .skip_byte() // version
+            .skip_byte() // chain_id
             .get_bytes(&mut sender_public_key, PUBLIC_KEY_LENGTH)
             .get_bytes(&mut asset_bytes, HASH_LENGTH)
             .get_bytes(&mut amount, 8)
@@ -47,9 +41,6 @@ impl<'a> Transaction<'a> for Burn {
         let asset_id = Hash::new(asset_bytes);
 
         Burn {
-            type_id: Type::from_u8(type_id),
-            version: Version::from_u8(version),
-            chain_id,
             sender_public_key: PublicKeyAccount::new(sender_public_key),
             asset_id,
             amount: u64::from_be_bytes(amount),

@@ -12,8 +12,6 @@ use crate::{
 
 #[allow(dead_code)]
 pub struct Transfer {
-    type_id: Type,
-    version: Version,
     sender_public_key: PublicKeyAccount,
     asset: Option<Asset>,
     fee_asset: Option<Asset>,
@@ -28,8 +26,6 @@ impl<'a> Transaction<'a> for Transfer {
         let bytes = ctx.buffer.as_bytes();
         let mut deserializer = Deserializer::new(bytes);
 
-        let mut type_id = 0_u8;
-        let mut version = 0_u8;
         let mut sender_public_key = [0u8; PUBLIC_KEY_LENGTH];
         let mut asset_bytes = [0u8; HASH_LENGTH];
         let mut fee_asset_bytes = [0u8; HASH_LENGTH];
@@ -39,8 +35,8 @@ impl<'a> Transaction<'a> for Transfer {
         let mut recipient: [u8; 26] = [0u8; 26];
 
         deserializer
-            .get_byte(&mut type_id)
-            .get_byte(&mut version)
+            .skip_byte() // type_id
+            .skip_byte() // version
             .get_bytes(&mut sender_public_key, PUBLIC_KEY_LENGTH)
             .get_bytes_flag(&mut asset_bytes, HASH_LENGTH)
             .get_bytes_flag(&mut fee_asset_bytes, HASH_LENGTH)
@@ -53,8 +49,6 @@ impl<'a> Transaction<'a> for Transfer {
         let fee_asset = Hash::new(fee_asset_bytes).as_asset();
 
         Transfer {
-            type_id: Type::from_u8(type_id),
-            version: Version::from_u8(version),
             sender_public_key: PublicKeyAccount::new(sender_public_key),
             asset,
             fee_asset,

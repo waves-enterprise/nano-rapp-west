@@ -42,6 +42,12 @@ impl<'a> Deserializer<'a> {
         }
     }
 
+    pub fn skip_byte(self: &mut Deserializer<'a>) -> Deserializer {
+        Deserializer {
+            buffer: &self.buffer[1..],
+        }
+    }
+
     pub fn skip_string(self: &mut Deserializer<'a>) -> Deserializer {
         let buffer = skip_string(self.buffer);
         Deserializer { buffer }
