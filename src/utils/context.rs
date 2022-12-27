@@ -1,4 +1,4 @@
-const MAX_DATA_SIZE: usize = 650;
+const MAX_DATA_SIZE: usize = 510;
 
 pub struct Context {
     pub signing_context: SigningContext,
@@ -12,11 +12,12 @@ impl Context {
     }
 }
 
+#[repr(C)]
 pub struct SigningContext {
-    pub buffer: DataBuffer,
     pub bip32: [u32; 5],
     pub amount_decimals: u8,
     pub fee_decimals: u8,
+    pub buffer: DataBuffer,
     pub network_byte: u8,
 }
 

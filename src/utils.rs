@@ -60,8 +60,6 @@ mod tests {
         } else {
             Err(())
         }
-
-        // Ok(())
     }
 
     #[test_case]
